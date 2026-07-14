@@ -1,0 +1,14 @@
+[general]
+name = "megablocks-helion"
+license = "Apache-2.0"
+backends = [
+  "cuda",
+]
+version = 1
+edition = 5
+python-depends = ["helion"]
+
+[general.hub]
+repo-id = "kernels-community/megablocks-helion"
+
+[torch-noarch]

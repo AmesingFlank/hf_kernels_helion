@@ -1,0 +1,14 @@
+# kernel-builder outputs (Nix build results + symlinks into /nix/store)
+result
+**/result
+build/
+**/build/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Nix
+.direnv/

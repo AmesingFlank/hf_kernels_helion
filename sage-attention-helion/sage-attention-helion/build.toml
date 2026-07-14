@@ -1,0 +1,14 @@
+[general]
+name = "sage-attention-helion"
+license = "Apache-2.0"
+backends = [
+  "cuda",
+]
+version = 1
+edition = 5
+python-depends = ["helion"]
+
+[general.hub]
+repo-id = "kernels-community/sage-attention-helion"
+
+[torch-noarch]
