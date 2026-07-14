@@ -239,9 +239,13 @@ KERNELS = {"activation":activation,"rotary":rotary,"layer_norm":layer_norm,"caus
 
 if __name__ == "__main__":
     name = sys.argv[1]
-    print(f"=== {name} (LLM-guided autotune, bedrock/haiku-4.5) shape={_SHAPE_FILTER or 'all'} ===", flush=True)
+    # Backend-aware output file: cute results go to /tmp/rebench_cute_<name>.json
+    # so they don't clobber the triton run (HELION_BACKEND defaults to triton).
+    _BACKEND = os.environ.get("HELION_BACKEND", "triton")
+    _prefix = "rebench_cute_" if _BACKEND == "cute" else "rebench_"
+    print(f"=== {name} (backend={_BACKEND}, LLM-guided autotune, bedrock/haiku-4.5) shape={_SHAPE_FILTER or 'all'} ===", flush=True)
     KERNELS[name]()
-    outp = Path(f"/tmp/rebench_{name}.json")
+    outp = Path(f"/tmp/{_prefix}{name}.json")
     # When running one shape per process, accumulate rows across invocations.
     existing = []
     if _SHAPE_FILTER is not None and outp.exists():
