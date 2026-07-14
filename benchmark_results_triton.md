@@ -1,4 +1,8 @@
-# Helion kernels — benchmark vs `kernels-community` references
+# Helion kernels (triton backend) — benchmark vs `kernels-community` references
+
+Helion kernels here are compiled through Helion's default **Triton
+backend**. See `benchmark_results_cute.md` for the same kernels on the CuteDSL
+(`cute`) backend.
 
 Helion ports of `kernels-community` kernels, benchmarked on **NVIDIA B200**
 against the **real HuggingFace kernel** (each reference's build variant pulled
@@ -16,18 +20,14 @@ in its **own fresh process with all caches cleared**, so every `autotune (s)` is
 a real measurement.
 
 This covers the full `kernels-community` download list from **activation** down
-to **deep-gemm** (18 kernels; flash-attn variants excluded per the task). Of the
-18: **11 have a working head-to-head** (tables below); **3 have no loadable build
-for this system** (torch 2.13/cu130, sm_100 Blackwell); **4 load but expose
-private data formats** the Helion op can't be called against on identical inputs
-(noted per kernel — those Helion kernels are verified against PyTorch elsewhere).
-
-Plus **two attention kernels** benchmarked against dedicated attention
-references that actually run on Blackwell: a plain SDPA Helion kernel vs
-**flash-attn4** (CuTeDSL), and a Helion **SageAttention2** (INT8-quantized) kernel
-vs **thu-ml/SageAttention** built from source for sm_100 — the prebuilt sage
-variants target only consumer Blackwell (sm_120/121) and can't run on the B200.
-That makes **13 head-to-head tables** in total.
+to **deep-gemm** (18 kernels; flash-attn variants excluded per the task), plus
+two dedicated attention comparisons that run on Blackwell — a plain SDPA Helion
+kernel vs **flash-attn4** (CuTeDSL), and a Helion **SageAttention2**
+(INT8-quantized) kernel vs **thu-ml/SageAttention** built from source for sm_100.
+Kernels with no head-to-head row either have no loadable reference build for
+this system (torch 2.13/cu130, sm_100 Blackwell) or expose private data formats
+the Helion op can't be called against on identical inputs (noted per kernel).
+That makes **13 head-to-head tables** below.
 
 ## activation — `silu_and_mul`
 vs **kernels-community/activation (C++/CUDA)**
