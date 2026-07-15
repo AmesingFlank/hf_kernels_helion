@@ -16,5 +16,14 @@
     "speedup": 2.457,
     "autotune_s": 252.9,
     "ok": true
+  },
+  {
+    "kernel": "activation.silu_and_mul",
+    "size": "large 8x4096x8192",
+    "helion_ms": 0.2179,
+    "ref_ms": 0.4491,
+    "speedup": 2.061,
+    "autotune_s": 243.4,
+    "ok": true
   }
 ]
