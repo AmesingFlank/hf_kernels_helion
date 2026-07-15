@@ -16,5 +16,14 @@
     "speedup": 0.944,
     "autotune_s": 346.9,
     "ok": true
+  },
+  {
+    "kernel": "rotary.apply_rotary",
+    "size": "large 16x2048x32x64",
+    "helion_ms": 0.2104,
+    "ref_ms": 0.5563,
+    "speedup": 2.644,
+    "autotune_s": 279.9,
+    "ok": true
   }
 ]
