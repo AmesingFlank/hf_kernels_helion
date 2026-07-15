@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "rotary.apply_rotary",
+    "size": "small 2x128x8x32",
+    "helion_ms": 0.0779,
+    "ref_ms": 0.0183,
+    "speedup": 0.235,
+    "autotune_s": 341.1,
+    "ok": true
+  }
+]
