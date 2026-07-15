@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "rwkv.wkv",
+    "size": "small 4x256x512",
+    "helion_ms": 0.0787,
+    "ref_ms": 0.0543,
+    "speedup": 0.689,
+    "autotune_s": 241.3,
+    "ok": true
+  }
+]
