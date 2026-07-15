@@ -7,5 +7,14 @@
     "speedup": 0.689,
     "autotune_s": 241.3,
     "ok": true
+  },
+  {
+    "kernel": "rwkv.wkv",
+    "size": "medium 8x1024x1024",
+    "helion_ms": 0.6832,
+    "ref_ms": 0.5573,
+    "speedup": 0.816,
+    "autotune_s": 258.6,
+    "ok": true
   }
 ]
