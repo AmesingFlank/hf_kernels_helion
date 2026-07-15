@@ -97,5 +97,29 @@ fresh process.
 | finegrained-fp8 — medium 2048x2048x4096 | [finegrained-fp8](https://huggingface.co/kernels/kernels-community/finegrained-fp8) | 0.01× | ✗ | 281 s |
 | finegrained-fp8 — large 4096x4096x8192 | [finegrained-fp8](https://huggingface.co/kernels/kernels-community/finegrained-fp8) | 0.01× | ✗ | 511 s |
 
-> On the CuteDSL backend, some kernels do not yet compile (`mamba-ssm`, `megablocks`, `deformable-detr`, `sage-attention`) and so have no rows, and `paged-attention` / `finegrained-fp8` compile but do not match the reference numerically (verified ✗). See [`benchmark_results_cute.md`](benchmark_results_cute.md) for details.
+## CuteDSL backend — failure cases
+
+Every (kernel, input size) that produces a **verified** result on the Triton backend but **not** on the CuteDSL backend, with the reason. Covers three modes: the kernel doesn't compile on `cute`, it compiles but is numerically wrong, or its autotune doesn't converge in budget. Full per-kernel context is in [`benchmark_results_cute.md`](benchmark_results_cute.md).
+
+| Task | Input size | Why the Helion CuteDSL kernel didn't work |
+|---|---|---|
+| paged-attention | small 16x8x64 | Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect). |
+| paged-attention | medium 32x16x64 | Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect). |
+| mamba-ssm | small 2x256x128 | Does not compile — the sequential selective-scan recurrence raises `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen. |
+| mamba-ssm | medium 4x1024x512 | Does not compile — the sequential selective-scan recurrence raises `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen. |
+| mamba-ssm | large 8x2048x1024 | Does not compile — the sequential selective-scan recurrence raises `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen. |
+| megablocks | small G8x2195x1024x1024 | Autotuning hangs — the jagged grouped-GEMM wedges in CuTe compilation (CPU-bound, no config ever benchmarked) and hits the wall-clock timeout. |
+| megablocks | medium G16x8289x2048x2048 | Autotuning hangs — the jagged grouped-GEMM wedges in CuTe compilation (CPU-bound, no config ever benchmarked) and hits the wall-clock timeout. |
+| megablocks | large G32x17221x4096x4096 | Autotuning hangs — the jagged grouped-GEMM wedges in CuTe compilation (CPU-bound, no config ever benchmarked) and hits the wall-clock timeout. |
+| deformable-detr | small 2x900x8x32 | Does not compile — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`. |
+| deformable-detr | medium 4x2000x8x32 | Does not compile — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`. |
+| deformable-detr | large 8x4000x8x64 | Does not compile — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`. |
+| finegrained-fp8 | small 512x512x2048 | Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect). |
+| finegrained-fp8 | medium 2048x2048x4096 | Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect). |
+| finegrained-fp8 | large 4096x4096x8192 | Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect). |
+| attention | medium 4x1024x16x64 | LLM autotuner did not converge within the 700 s per-shape budget on cute (this kernel's smaller shape(s) did). |
+| attention | large 8x2048x16x128 | LLM autotuner did not converge within the 700 s per-shape budget on cute (this kernel's smaller shape(s) did). |
+| sage-attention | small 2x8x512x128 | Does not compile — the INT8-quant step `torch.round` raises `InductorLoweringError` (the `cute` backend has no lowering for `aten.round.default`). |
+| sage-attention | medium 4x16x1024x128 | Does not compile — the INT8-quant step `torch.round` raises `InductorLoweringError` (the `cute` backend has no lowering for `aten.round.default`). |
+| sage-attention | large 8x16x2048x128 | Does not compile — the INT8-quant step `torch.round` raises `InductorLoweringError` (the `cute` backend has no lowering for `aten.round.default`). |
 

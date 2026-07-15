@@ -98,20 +98,69 @@ def render_table(title, rows):
     return out
 
 
+# Why a Helion kernel fails to produce a verified result on the CuteDSL backend.
+CUTE_COMPILE_FAIL = {
+    "mamba": "Does not compile — the sequential selective-scan recurrence raises `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen.",
+    "megablocks": "Autotuning hangs — the jagged grouped-GEMM wedges in CuTe compilation (CPU-bound, no config ever benchmarked) and hits the wall-clock timeout.",
+    "deformable": "Does not compile — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`.",
+    "sage": "Does not compile — the INT8-quant step `torch.round` raises `InductorLoweringError` (the `cute` backend has no lowering for `aten.round.default`).",
+}
+CUTE_NUMERIC_FAIL = "Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect)."
+CUTE_TIMEOUT_FAIL = "LLM autotuner did not converge within the 700 s per-shape budget on cute (this kernel's smaller shape(s) did)."
+
+
+def build_cute_failures():
+    """Enumerate every (task, size) that has a Triton result but no *verified*
+    cute result — i.e. compile failures, numerically-wrong (ok=False) shapes,
+    and autotune timeouts. Shapes come from the Triton run (every kernel ran
+    there); reasons are the actual errors observed on cute."""
+    rows = []  # (task, size, reason)
+    for key, task, refname, url in KERNELS:
+        tri = load("triton", key) or []
+        cute = load("cute", key) or []
+        cute_by_size = {r["size"]: r for r in cute}
+        for tr in tri:
+            size = tr["size"]
+            cr = cute_by_size.get(size)
+            if cr is not None:
+                if not cr["ok"]:
+                    rows.append((task, size, CUTE_NUMERIC_FAIL))
+            elif key in CUTE_COMPILE_FAIL:
+                rows.append((task, size, CUTE_COMPILE_FAIL[key]))
+            elif key == "attention":
+                rows.append((task, size, CUTE_TIMEOUT_FAIL))
+    return rows
+
+
+def render_failure_table(rows):
+    out = ["## CuteDSL backend — failure cases", "",
+           "Every (kernel, input size) that produces a **verified** result on the "
+           "Triton backend but **not** on the CuteDSL backend, with the reason. "
+           "Covers three modes: the kernel doesn't compile on `cute`, it compiles "
+           "but is numerically wrong, or its autotune doesn't converge in budget. "
+           "Full per-kernel context is in "
+           "[`benchmark_results_cute.md`](benchmark_results_cute.md).", ""]
+    if not rows:
+        out += ["_No CuteDSL failures._", ""]
+        return out
+    out += ["| Task | Input size | Why the Helion CuteDSL kernel didn't work |",
+            "|---|---|---|"]
+    for task, size, reason in rows:
+        out.append(f"| {task} | {size} | {reason} |")
+    out.append("")
+    return out
+
+
 lines = [INTRO, ""]
 triton_rows = build_rows("triton")
 cute_rows = build_rows("cute")
 lines += render_table("Aggregated benchmark results — Triton backend", triton_rows)
+cute_failures = []
 if cute_rows or os.path.isdir(f"{HH}/results/cute"):
     lines += render_table("Aggregated benchmark results — CuteDSL backend", cute_rows)
-    lines += [
-        "> On the CuteDSL backend, some kernels do not yet compile "
-        "(`mamba-ssm`, `megablocks`, `deformable-detr`, `sage-attention`) and so "
-        "have no rows, and `paged-attention` / `finegrained-fp8` compile but do "
-        "not match the reference numerically (verified ✗). "
-        "See [`benchmark_results_cute.md`](benchmark_results_cute.md) for details.",
-        "",
-    ]
+    cute_failures = build_cute_failures()
+    lines += render_failure_table(cute_failures)
 
 open(OUT, "w").write("\n".join(lines) + "\n")
-print(f"wrote {OUT}: {len(triton_rows)} triton rows, {len(cute_rows)} cute rows")
+print(f"wrote {OUT}: {len(triton_rows)} triton rows, {len(cute_rows)} cute rows, "
+      f"{len(cute_failures)} cute failures")
