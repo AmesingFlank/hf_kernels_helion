@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "causal_conv1d",
+    "size": "small 8x768x512",
+    "helion_ms": 0.0579,
+    "ref_ms": 0.0136,
+    "speedup": 0.234,
+    "autotune_s": 329.1,
+    "ok": true
+  }
+]
