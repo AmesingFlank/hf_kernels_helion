@@ -7,5 +7,14 @@
     "speedup": 0.264,
     "autotune_s": 368.8,
     "ok": true
+  },
+  {
+    "kernel": "layer_norm.rms_fwd",
+    "size": "medium 2048x2048",
+    "helion_ms": 0.0516,
+    "ref_ms": 0.0106,
+    "speedup": 0.206,
+    "autotune_s": 339.4,
+    "ok": true
   }
 ]
