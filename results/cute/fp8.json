@@ -16,5 +16,14 @@
     "speedup": 0.006,
     "autotune_s": 281.1,
     "ok": false
+  },
+  {
+    "kernel": "finegrained_fp8.w8a8_block",
+    "size": "large 4096x4096x8192",
+    "helion_ms": 193.4872,
+    "ref_ms": 0.9588,
+    "speedup": 0.005,
+    "autotune_s": 510.7,
+    "ok": false
   }
 ]
