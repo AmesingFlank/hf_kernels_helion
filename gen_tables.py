@@ -116,6 +116,12 @@ CUTE_FAIL_NOTE = {
     "mamba": "Helion kernel **does not compile on the CuteDSL backend** — the sequential selective-scan recurrence hits `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen, so the autotuner can't build a baseline. Works on the Triton backend (see `benchmark_results_triton.md`).",
     "megablocks": "Autotuning **hangs on the CuteDSL backend** — the jagged grouped-GEMM kernel wedges in CuTe compilation (CPU-bound, no configs ever benchmarked) and hits the wall-clock timeout with no result. Works on the Triton backend (see `benchmark_results_triton.md`).",
     "deformable": "Helion kernel **does not compile on the CuteDSL backend** — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`. Works on the Triton backend (see `benchmark_results_triton.md`).",
+    "sage": "Helion kernel **does not compile on the CuteDSL backend** — the INT8 quantization step `torch.round` raises `InductorLoweringError: Error in codegen for aten.round.default` (the `cute` backend has no lowering for `round`). Works on the Triton backend (see `benchmark_results_triton.md`); the plain-SDPA attention kernel above, which has no rounding, does run on `cute`.",
+}
+
+# Notes appended AFTER a (partial) table, e.g. when some shapes timed out.
+CUTE_PARTIAL_NOTE = {
+    "attention": "The `medium` and `large` shapes are omitted: on the CuteDSL backend the LLM autotuner did not converge within the 700 s per-shape wall-clock budget for those shapes (the `small` shape did). Autotuning is markedly slower on `cute` than on Triton for this kernel.",
 }
 
 lines = [HEADER]
@@ -136,6 +142,9 @@ for key, repo, opname, refname in ORDER:
         lines.append(f"| {r['size']} | {r['helion_ms']:.4f} | {r['ref_ms']:.4f} | "
                      f"{r['speedup']:.2f}× | {r['autotune_s']:.0f} | {'✓' if r['ok'] else '✗'} |")
     lines.append("")
+    if _IS_CUTE and key in CUTE_PARTIAL_NOTE:
+        lines.append("_" + CUTE_PARTIAL_NOTE[key] + "_")
+        lines.append("")
 
 open(OUT, "w").write("\n".join(lines) + "\n")
 print(f"regenerated {OUT} - {_n_tables} kernels with data (backend={_BACKEND})")

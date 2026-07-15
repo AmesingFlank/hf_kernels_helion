@@ -106,8 +106,10 @@ if cute_rows or os.path.isdir(f"{HH}/results/cute"):
     lines += render_table("Aggregated benchmark results — CuteDSL backend", cute_rows)
     lines += [
         "> On the CuteDSL backend, some kernels do not yet compile "
-        "(`mamba-ssm`, `megablocks`, `deformable-detr`) and so have no rows; "
-        "see [`benchmark_results_cute.md`](benchmark_results_cute.md) for details.",
+        "(`mamba-ssm`, `megablocks`, `deformable-detr`, `sage-attention`) and so "
+        "have no rows, and `paged-attention` / `finegrained-fp8` compile but do "
+        "not match the reference numerically (verified ✗). "
+        "See [`benchmark_results_cute.md`](benchmark_results_cute.md) for details.",
         "",
     ]
 
