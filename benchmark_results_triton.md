@@ -15,9 +15,10 @@ column is the wall-clock time the LLM autotuner spent searching configs for that
 input size.
 
 `speedup` = ref_ms / helion_ms  (>1 → Helion faster). Every row is numerically
-verified against the reference (`torch.allclose`). Each input size is autotuned
-in its **own fresh process with all caches cleared**, so every `autotune (s)` is
-a real measurement.
+verified against the reference (`torch.allclose`); a ✗ in the `verified` column
+means the Helion output did NOT match the reference on that shape (kept for
+transparency). Each input size is autotuned in its **own fresh process with all
+caches cleared**, so every `autotune (s)` is a real measurement.
 
 This covers the full `kernels-community` download list from **activation** down
 to **deep-gemm** (18 kernels; flash-attn variants excluded per the task), plus
@@ -25,8 +26,9 @@ two dedicated attention comparisons that run on Blackwell — a plain SDPA Helio
 kernel vs **flash-attn4** (CuTeDSL), and a Helion **SageAttention2**
 (INT8-quantized) kernel vs **thu-ml/SageAttention** built from source for sm_100.
 Kernels with no head-to-head row either have no loadable reference build for
-this system (torch 2.13/cu130, sm_100 Blackwell) or expose private data formats
-the Helion op can't be called against on identical inputs (noted per kernel).
+this system (torch 2.13/cu130, sm_100 Blackwell), expose private data formats
+the Helion op can't be called against on identical inputs, or (on the CuteDSL
+backend) don't yet compile — noted per kernel.
 That makes **13 head-to-head tables** below.
 
 ## activation — `silu_and_mul`

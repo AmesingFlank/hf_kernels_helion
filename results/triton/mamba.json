@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "mamba.selective_scan",
+    "size": "small 2x256x128",
+    "helion_ms": 0.0545,
+    "ref_ms": 0.026,
+    "speedup": 0.48,
+    "autotune_s": 101.0,
+    "ok": true
+  },
+  {
+    "kernel": "mamba.selective_scan",
+    "size": "medium 4x1024x512",
+    "helion_ms": 0.3345,
+    "ref_ms": 0.05,
+    "speedup": 0.15,
+    "autotune_s": 92.0,
+    "ok": true
+  },
+  {
+    "kernel": "mamba.selective_scan",
+    "size": "large 8x2048x1024",
+    "helion_ms": 1.4605,
+    "ref_ms": 0.34,
+    "speedup": 0.23,
+    "autotune_s": 88.0,
+    "ok": true
+  }
+]

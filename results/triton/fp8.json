@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "finegrained_fp8.w8a8_block",
+    "size": "small 512x512x2048",
+    "helion_ms": 0.0511,
+    "ref_ms": 0.0715,
+    "speedup": 1.4,
+    "autotune_s": 82.0,
+    "ok": true
+  },
+  {
+    "kernel": "finegrained_fp8.w8a8_block",
+    "size": "medium 2048x2048x4096",
+    "helion_ms": 0.1758,
+    "ref_ms": 0.142,
+    "speedup": 0.81,
+    "autotune_s": 99.0,
+    "ok": true
+  },
+  {
+    "kernel": "finegrained_fp8.w8a8_block",
+    "size": "large 4096x4096x8192",
+    "helion_ms": 1.2803,
+    "ref_ms": 0.959,
+    "speedup": 0.75,
+    "autotune_s": 89.0,
+    "ok": true
+  }
+]

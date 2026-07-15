@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "attention.flash_attn_func",
+    "size": "small 2x512x8x64",
+    "helion_ms": 0.0819,
+    "ref_ms": 0.0356,
+    "speedup": 0.43,
+    "autotune_s": 120.0,
+    "ok": true
+  },
+  {
+    "kernel": "attention.flash_attn_func",
+    "size": "medium 4x1024x16x64",
+    "helion_ms": 0.1082,
+    "ref_ms": 0.0343,
+    "speedup": 0.32,
+    "autotune_s": 81.0,
+    "ok": true
+  },
+  {
+    "kernel": "attention.flash_attn_func",
+    "size": "large 8x2048x16x128",
+    "helion_ms": 0.8581,
+    "ref_ms": 0.2692,
+    "speedup": 0.31,
+    "autotune_s": 88.0,
+    "ok": true
+  }
+]

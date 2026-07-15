@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "rwkv.wkv",
+    "size": "small 4x256x512",
+    "helion_ms": 0.065,
+    "ref_ms": 0.0541,
+    "speedup": 0.83,
+    "autotune_s": 88.0,
+    "ok": true
+  },
+  {
+    "kernel": "rwkv.wkv",
+    "size": "medium 8x1024x1024",
+    "helion_ms": 0.2519,
+    "ref_ms": 0.527,
+    "speedup": 2.09,
+    "autotune_s": 75.0,
+    "ok": true
+  },
+  {
+    "kernel": "rwkv.wkv",
+    "size": "large 16x1024x2048",
+    "helion_ms": 0.4994,
+    "ref_ms": 0.615,
+    "speedup": 1.23,
+    "autotune_s": 77.0,
+    "ok": true
+  }
+]

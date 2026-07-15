@@ -1,0 +1,20 @@
+[
+  {
+    "kernel": "paged_attention_v1",
+    "size": "small 16x8x64",
+    "helion_ms": 0.0617,
+    "ref_ms": 0.0074,
+    "speedup": 0.12,
+    "autotune_s": 116.0,
+    "ok": true
+  },
+  {
+    "kernel": "paged_attention_v1",
+    "size": "medium 32x16x64",
+    "helion_ms": 0.0618,
+    "ref_ms": 0.0074,
+    "speedup": 0.12,
+    "autotune_s": 194.0,
+    "ok": true
+  }
+]

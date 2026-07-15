@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "rotary.apply_rotary",
+    "size": "small 2x128x8x32",
+    "helion_ms": 0.053,
+    "ref_ms": 0.0169,
+    "speedup": 0.32,
+    "autotune_s": 155.0,
+    "ok": true
+  },
+  {
+    "kernel": "rotary.apply_rotary",
+    "size": "medium 8x512x32x64",
+    "helion_ms": 0.0562,
+    "ref_ms": 0.074,
+    "speedup": 1.32,
+    "autotune_s": 98.0,
+    "ok": true
+  },
+  {
+    "kernel": "rotary.apply_rotary",
+    "size": "large 16x2048x32x64",
+    "helion_ms": 0.1635,
+    "ref_ms": 0.5449,
+    "speedup": 3.33,
+    "autotune_s": 83.0,
+    "ok": true
+  }
+]

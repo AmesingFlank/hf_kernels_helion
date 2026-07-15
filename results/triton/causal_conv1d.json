@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "causal_conv1d",
+    "size": "small 8x768x512",
+    "helion_ms": 0.0352,
+    "ref_ms": 0.0136,
+    "speedup": 0.39,
+    "autotune_s": 101.0,
+    "ok": true
+  },
+  {
+    "kernel": "causal_conv1d",
+    "size": "medium 16x2048x2048",
+    "helion_ms": 0.562,
+    "ref_ms": 0.0801,
+    "speedup": 0.14,
+    "autotune_s": 80.0,
+    "ok": true
+  },
+  {
+    "kernel": "causal_conv1d",
+    "size": "large 32x4096x4096",
+    "helion_ms": 4.1575,
+    "ref_ms": 0.5806,
+    "speedup": 0.14,
+    "autotune_s": 98.0,
+    "ok": true
+  }
+]
