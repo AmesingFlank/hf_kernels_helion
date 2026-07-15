@@ -1,0 +1,12 @@
+{
+  "name": "deformable-detr-helion",
+  "id": "_deformable_detr_helion_cuda_677c430",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

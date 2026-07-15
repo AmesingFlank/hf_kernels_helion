@@ -1,0 +1,12 @@
+{
+  "name": "finegrained-fp8-helion",
+  "id": "_finegrained_fp8_helion_cuda_b0d7177",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

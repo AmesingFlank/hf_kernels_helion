@@ -1,0 +1,12 @@
+{
+  "name": "paged-attention-helion",
+  "id": "_paged_attention_helion_cuda_f06ac46",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

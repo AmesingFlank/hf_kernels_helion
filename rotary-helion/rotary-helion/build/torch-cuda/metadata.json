@@ -1,0 +1,12 @@
+{
+  "name": "rotary-helion",
+  "id": "_rotary_helion_cuda_ac565a7",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

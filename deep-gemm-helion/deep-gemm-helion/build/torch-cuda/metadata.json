@@ -1,0 +1,12 @@
+{
+  "name": "deep-gemm-helion",
+  "id": "_deep_gemm_helion_cuda_b3690f6",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

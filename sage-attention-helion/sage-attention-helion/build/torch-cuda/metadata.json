@@ -1,0 +1,33 @@
+{
+  "name": "sage-attention-helion",
+  "id": "_sage_attention_helion_cuda_959d589",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  },
+  "digest": {
+    "algorithm": "sha256",
+    "files": {
+      "__init__.py": "LVFv0aQPcgjf7uV5umbPhkUjyKfQ9iPeLYFfcYSKnPw=",
+      "_ops.py": "ix86MhvaAMz5IdpX6vojh2wq85nKcT8QYS32HQKnScU=",
+      "op.py": "hwZmmIIKU12PSEqD9H9BLR8rwH9CgEX4essHVrkAenA=",
+      "sage_attention.py": "rLkj1it0qu3VPgb4CLnVbg3Esh+TAYkV5Kdm/Q8ccDo=",
+      "sage_attention_helion/__init__.py": "DFYPlrhXwYjEqCl/8n0SmWGZV8NFml5DPhMjKfv98GY="
+    }
+  },
+  "provenance": {
+    "kernel-builder": {
+      "version": "0.17.0-dev0",
+      "sha": "02d7cb39d77834262ba8b969c9b5f823ec733e2d",
+      "dirty": false
+    },
+    "kernel": {
+      "sha": "959d58926f710b01f75016430c1e5a12a1b36124",
+      "dirty": false
+    }
+  }
+}

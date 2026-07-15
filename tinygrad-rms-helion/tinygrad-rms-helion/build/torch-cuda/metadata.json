@@ -1,0 +1,12 @@
+{
+  "name": "tinygrad-rms-helion",
+  "id": "_tinygrad_rms_helion_cuda_57fc841",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

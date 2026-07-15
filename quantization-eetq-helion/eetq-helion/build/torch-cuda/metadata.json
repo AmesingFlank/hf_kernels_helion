@@ -1,0 +1,12 @@
+{
+  "name": "eetq-helion",
+  "id": "_eetq_helion_cuda_162c9f3",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

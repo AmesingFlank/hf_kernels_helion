@@ -1,0 +1,12 @@
+{
+  "name": "rwkv-helion",
+  "id": "_rwkv_helion_cuda_a0c841e",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

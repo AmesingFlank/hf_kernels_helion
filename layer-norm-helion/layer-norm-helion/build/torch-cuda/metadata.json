@@ -1,0 +1,12 @@
+{
+  "name": "layer-norm-helion",
+  "id": "_layer_norm_helion_cuda_c716a4b",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

@@ -1,8 +1,6 @@
-# kernel-builder outputs (Nix build results + symlinks into /nix/store)
-result
-**/result
-build/
-**/build/
+# Nix build symlinks into /nix/store get GC'd; we instead commit the
+# reconstructed pure-Python noarch build/ dirs and relative `result` symlinks
+# (see rebuild_noarch.py). So build/ and result are NOT ignored.
 
 # Python caches
 __pycache__/

@@ -1,0 +1,12 @@
+{
+  "name": "gpt-oss-helion",
+  "id": "_gpt_oss_helion_cuda_5956e3d",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

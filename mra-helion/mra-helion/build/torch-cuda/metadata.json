@@ -1,0 +1,12 @@
+{
+  "name": "mra-helion",
+  "id": "_mra_helion_cuda_ebd24b0",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "activation-helion",
+  "id": "_activation_helion_cuda_81b39f4",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

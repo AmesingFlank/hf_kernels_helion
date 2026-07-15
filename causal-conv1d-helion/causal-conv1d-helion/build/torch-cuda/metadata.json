@@ -1,0 +1,12 @@
+{
+  "name": "causal-conv1d-helion",
+  "id": "_causal_conv1d_helion_cuda_1f197a8",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}

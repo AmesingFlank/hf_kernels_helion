@@ -1,0 +1,12 @@
+{
+  "name": "megablocks-helion",
+  "id": "_megablocks_helion_cuda_7193292",
+  "version": 1,
+  "license": "Apache-2.0",
+  "python-depends": [
+    "helion"
+  ],
+  "backend": {
+    "type": "cuda"
+  }
+}
