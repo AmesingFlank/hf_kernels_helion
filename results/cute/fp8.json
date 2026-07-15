@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "finegrained_fp8.w8a8_block",
+    "size": "small 512x512x2048",
+    "helion_ms": 1.3544,
+    "ref_ms": 0.0716,
+    "speedup": 0.053,
+    "autotune_s": 235.3,
+    "ok": false
+  }
+]
