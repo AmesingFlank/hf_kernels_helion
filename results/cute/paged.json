@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "paged_attention_v1",
+    "size": "small 16x8x64",
+    "helion_ms": 0.4381,
+    "ref_ms": 0.0089,
+    "speedup": 0.02,
+    "autotune_s": 201.4,
+    "ok": false
+  }
+]
