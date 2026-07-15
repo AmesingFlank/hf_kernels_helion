@@ -1,0 +1,11 @@
+[
+  {
+    "kernel": "activation.silu_and_mul",
+    "size": "small 8x1024x2048",
+    "helion_ms": 0.047,
+    "ref_ms": 0.043,
+    "speedup": 0.915,
+    "autotune_s": 335.5,
+    "ok": true
+  }
+]
