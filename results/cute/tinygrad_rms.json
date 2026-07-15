@@ -16,5 +16,14 @@
     "speedup": 0.924,
     "autotune_s": 302.8,
     "ok": true
+  },
+  {
+    "kernel": "tinygrad_rms_norm",
+    "size": "large 65536x1024",
+    "helion_ms": 0.0818,
+    "ref_ms": 0.1999,
+    "speedup": 2.444,
+    "autotune_s": 267.2,
+    "ok": true
   }
 ]
