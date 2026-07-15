@@ -16,5 +16,14 @@
     "speedup": 0.816,
     "autotune_s": 258.6,
     "ok": true
+  },
+  {
+    "kernel": "rwkv.wkv",
+    "size": "large 16x1024x2048",
+    "helion_ms": 0.7331,
+    "ref_ms": 0.6151,
+    "speedup": 0.839,
+    "autotune_s": 250.2,
+    "ok": true
   }
 ]
