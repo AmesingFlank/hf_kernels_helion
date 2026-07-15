@@ -16,5 +16,14 @@
     "speedup": 0.221,
     "autotune_s": 259.9,
     "ok": true
+  },
+  {
+    "kernel": "causal_conv1d",
+    "size": "large 32x4096x4096",
+    "helion_ms": 2.9626,
+    "ref_ms": 0.5804,
+    "speedup": 0.196,
+    "autotune_s": 246.0,
+    "ok": true
   }
 ]
