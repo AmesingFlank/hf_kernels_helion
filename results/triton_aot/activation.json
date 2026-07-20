@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "activation.silu_and_mul",
+    "size": "small 8x1024x2048",
+    "helion_ms": 0.0299,
+    "ref_ms": 0.0428,
+    "speedup": 1.429,
+    "autotune_s": 0.6,
+    "ok": true
+  },
+  {
+    "kernel": "activation.silu_and_mul",
+    "size": "medium 8x2048x4096",
+    "helion_ms": 0.0335,
+    "ref_ms": 0.1423,
+    "speedup": 4.251,
+    "autotune_s": 0.5,
+    "ok": true
+  },
+  {
+    "kernel": "activation.silu_and_mul",
+    "size": "large 8x4096x8192",
+    "helion_ms": 0.1228,
+    "ref_ms": 0.4478,
+    "speedup": 3.646,
+    "autotune_s": 0.6,
+    "ok": true
+  }
+]

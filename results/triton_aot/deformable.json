@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "deformable.ms_deform_attn",
+    "size": "small 2x900x8x32",
+    "helion_ms": 0.1499,
+    "ref_ms": 0.0161,
+    "speedup": 0.107,
+    "autotune_s": 2.3,
+    "ok": true
+  },
+  {
+    "kernel": "deformable.ms_deform_attn",
+    "size": "medium 4x2000x8x32",
+    "helion_ms": 0.6083,
+    "ref_ms": 0.0684,
+    "speedup": 0.112,
+    "autotune_s": 2.4,
+    "ok": true
+  },
+  {
+    "kernel": "deformable.ms_deform_attn",
+    "size": "large 8x4000x8x64",
+    "helion_ms": 2.7205,
+    "ref_ms": 0.5723,
+    "speedup": 0.21,
+    "autotune_s": 2.4,
+    "ok": true
+  }
+]

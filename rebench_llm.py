@@ -9,16 +9,24 @@ Usage: python rebench_llm.py <kernel_name>
 """
 from __future__ import annotations
 import os
-# --- LLM-guided autotuning config (must be set before helion import) ---
-os.environ.setdefault("HELION_AUTOTUNER", "LLMGuidedSearch")
-os.environ.setdefault("HELION_LLM_PROVIDER", "bedrock")
-os.environ.setdefault("HELION_LLM_MODEL", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
-os.environ.setdefault("AWS_REGION", "us-east-2")
-# In-process benchmarking avoids the spawn-reimport recursion for get_local_kernel
-# modules (they don't live under __main__, so the __main__ guard can't protect them).
-os.environ.setdefault("HELION_AUTOTUNE_BENCHMARK_SUBPROCESS", "0")
-os.environ.setdefault("HELION_SKIP_CACHE", "1")
-os.environ.setdefault("HELION_AUTOTUNE_IGNORE_ERRORS", "1")
+# --- AOT (pre-tuned) mode vs LLM-guided autotuning mode ---
+# REBENCH_AOT=1: evaluate mode — kernels load their committed _helion_aot_*.py
+# heuristic and run the pre-tuned config with NO autotuning search. The timed
+# "autotune_s" then measures only the one-config compile (what a downloader pays).
+# Otherwise: LLM-guided autotuning (original methodology).
+_AOT = os.environ.get("REBENCH_AOT") == "1"
+if _AOT:
+    os.environ["HELION_AOT_MODE"] = "evaluate"
+else:
+    os.environ.setdefault("HELION_AUTOTUNER", "LLMGuidedSearch")
+    os.environ.setdefault("HELION_LLM_PROVIDER", "bedrock")
+    os.environ.setdefault("HELION_LLM_MODEL", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
+    os.environ.setdefault("AWS_REGION", "us-east-2")
+    # In-process benchmarking avoids the spawn-reimport recursion for get_local_kernel
+    # modules (they don't live under __main__, so the __main__ guard can't protect them).
+    os.environ.setdefault("HELION_AUTOTUNE_BENCHMARK_SUBPROCESS", "0")
+    os.environ.setdefault("HELION_SKIP_CACHE", "1")
+    os.environ.setdefault("HELION_AUTOTUNE_IGNORE_ERRORS", "1")
 
 import sys, json, time, math
 from pathlib import Path
@@ -243,9 +251,13 @@ if __name__ == "__main__":
     # so they survive /tmp cleanup and are version-controlled — a prior run that
     # only wrote to /tmp was lost when the session tore down.
     _BACKEND = os.environ.get("HELION_BACKEND", "triton")
-    _RESULTS_DIR = Path(HH) / "results" / _BACKEND
+    # AOT (pre-tuned) results go to results/<backend>_aot/ so they sit alongside
+    # the from-scratch-autotuned results/<backend>/ for comparison.
+    _SUBDIR = f"{_BACKEND}_aot" if _AOT else _BACKEND
+    _RESULTS_DIR = Path(HH) / "results" / _SUBDIR
     _RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"=== {name} (backend={_BACKEND}, LLM-guided autotune, bedrock/haiku-4.5) shape={_SHAPE_FILTER or 'all'} ===", flush=True)
+    _mode = "AOT pre-tuned (evaluate)" if _AOT else "LLM-guided autotune"
+    print(f"=== {name} (backend={_BACKEND}, {_mode}) shape={_SHAPE_FILTER or 'all'} ===", flush=True)
     KERNELS[name]()
     outp = _RESULTS_DIR / f"{name}.json"
     # When running one shape per process, accumulate rows across invocations.

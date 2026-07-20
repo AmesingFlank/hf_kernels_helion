@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "tinygrad_rms_norm",
+    "size": "small 4096x1024",
+    "helion_ms": 0.035,
+    "ref_ms": 0.0177,
+    "speedup": 0.506,
+    "autotune_s": 0.5,
+    "ok": true
+  },
+  {
+    "kernel": "tinygrad_rms_norm",
+    "size": "medium 16384x1024",
+    "helion_ms": 0.0337,
+    "ref_ms": 0.0554,
+    "speedup": 1.641,
+    "autotune_s": 0.5,
+    "ok": true
+  },
+  {
+    "kernel": "tinygrad_rms_norm",
+    "size": "large 65536x1024",
+    "helion_ms": 0.0805,
+    "ref_ms": 0.1984,
+    "speedup": 2.465,
+    "autotune_s": 0.5,
+    "ok": true
+  }
+]

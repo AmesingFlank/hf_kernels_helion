@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "sage_attention.sageattn",
+    "size": "small 2x8x512x128",
+    "helion_ms": 0.095,
+    "ref_ms": 0.1426,
+    "speedup": 1.502,
+    "autotune_s": 3.7,
+    "ok": true
+  },
+  {
+    "kernel": "sage_attention.sageattn",
+    "size": "medium 4x16x1024x128",
+    "helion_ms": 0.3029,
+    "ref_ms": 0.1765,
+    "speedup": 0.583,
+    "autotune_s": 2.1,
+    "ok": true
+  },
+  {
+    "kernel": "sage_attention.sageattn",
+    "size": "large 8x16x2048x128",
+    "helion_ms": 1.119,
+    "ref_ms": 0.8624,
+    "speedup": 0.771,
+    "autotune_s": 2.1,
+    "ok": true
+  }
+]

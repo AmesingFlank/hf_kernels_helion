@@ -1,0 +1,29 @@
+[
+  {
+    "kernel": "megablocks.gmm",
+    "size": "small G8x1996x1024x1024",
+    "helion_ms": 0.221,
+    "ref_ms": 0.0631,
+    "speedup": 0.285,
+    "autotune_s": 0.7,
+    "ok": true
+  },
+  {
+    "kernel": "megablocks.gmm",
+    "size": "medium G16x8189x2048x2048",
+    "helion_ms": 0.8318,
+    "ref_ms": 0.1312,
+    "speedup": 0.158,
+    "autotune_s": 0.7,
+    "ok": true
+  },
+  {
+    "kernel": "megablocks.gmm",
+    "size": "large G32x16580x4096x4096",
+    "helion_ms": 2.868,
+    "ref_ms": 0.5798,
+    "speedup": 0.202,
+    "autotune_s": 0.7,
+    "ok": true
+  }
+]
