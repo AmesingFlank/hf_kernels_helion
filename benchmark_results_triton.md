@@ -1,8 +1,8 @@
 # Helion kernels (triton backend) — benchmark vs `kernels-community` references
 
 Helion kernels here are compiled through Helion's default **Triton
-backend**. See `benchmark_results_cute.md` for the same kernels on the CuteDSL
-(`cute`) backend.
+backend**. Most also ship pre-tuned (AOT) configs — see
+`benchmark_results_triton_aot.md` for the pre-tuned-vs-autotuned comparison.
 
 Helion ports of `kernels-community` kernels, benchmarked on **NVIDIA B200**
 against the **real HuggingFace kernel** (each reference's build variant pulled
@@ -26,9 +26,8 @@ two dedicated attention comparisons that run on Blackwell — a plain SDPA Helio
 kernel vs **flash-attn4** (CuTeDSL), and a Helion **SageAttention2**
 (INT8-quantized) kernel vs **thu-ml/SageAttention** built from source for sm_100.
 Kernels with no head-to-head row either have no loadable reference build for
-this system (torch 2.13/cu130, sm_100 Blackwell), expose private data formats
-the Helion op can't be called against on identical inputs, or (on the CuteDSL
-backend) don't yet compile — noted per kernel.
+this system (torch 2.13/cu130, sm_100 Blackwell) or expose private data formats
+the Helion op can't be called against on identical inputs — noted per kernel.
 That makes **13 head-to-head tables** below.
 
 ## activation — `silu_and_mul`

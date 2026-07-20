@@ -39,12 +39,9 @@ elementwise/activation, normalization, rotary embeddings, state-space models
 (Mamba, RWKV), MoE/grouped GEMM, quantized GEMM, deformable and paged attention,
 and INT8-quantized (SageAttention2) and full-precision flash attention.
 
-Helion has two codegen backends, and the same kernels are benchmarked through
-both: the default **Triton** backend and the newer **CuteDSL** (`cute`) backend
-(CUTLASS CuTe DSL, `HELION_BACKEND=cute`). The aggregated tables below give the
-per-shape results for each; full per-kernel tables are in
-[`benchmark_results_triton.md`](benchmark_results_triton.md) and
-[`benchmark_results_cute.md`](benchmark_results_cute.md).
+These are benchmarked on Helion's default **Triton** backend. The aggregated
+table below gives the per-shape results; the full per-kernel table is in
+[`benchmark_results_triton.md`](benchmark_results_triton.md).
 
 `Helion speed vs reference` = reference latency / Helion latency (>1 → Helion is
 faster). `verified ✗` marks a shape where the Helion output did not match the
@@ -110,69 +107,22 @@ def render_table(title, rows):
     return out
 
 
-# Why a Helion kernel fails to produce a verified result on the CuteDSL backend.
-CUTE_COMPILE_FAIL = {
-    "mamba": "Does not compile — the sequential selective-scan recurrence raises `TypeError: Expected a TensorSSA or Numeric(Float), but got ArithValue` in CuTe codegen.",
-    "megablocks": "Autotuning hangs — the jagged grouped-GEMM wedges in CuTe compilation (CPU-bound, no config ever benchmarked) and hits the wall-clock timeout.",
-    "deformable": "Does not compile — the bilinear-sampling gather raises `BackendUnsupported: unresolved CuTe layout mismatch`.",
-    "sage": "Does not compile — the INT8-quant step `torch.round` raises `InductorLoweringError` (the `cute` backend has no lowering for `aten.round.default`).",
-}
-CUTE_NUMERIC_FAIL = "Compiles and runs on cute, but the output fails `torch.allclose` vs the reference (numerically incorrect)."
-CUTE_TIMEOUT_FAIL = "LLM autotuner did not converge within the 700 s per-shape budget on cute (this kernel's smaller shape(s) did)."
-
-
-def build_cute_failures():
-    """Enumerate every (task, size) that has a Triton result but no *verified*
-    cute result — i.e. compile failures, numerically-wrong (ok=False) shapes,
-    and autotune timeouts. Shapes come from the Triton run (every kernel ran
-    there); reasons are the actual errors observed on cute."""
-    rows = []  # (task, size, reason)
-    for key, task, refname, url in KERNELS:
-        tri = load("triton", key) or []
-        cute = load("cute", key) or []
-        cute_by_size = {r["size"]: r for r in cute}
-        for tr in tri:
-            size = tr["size"]
-            cr = cute_by_size.get(size)
-            if cr is not None:
-                if not cr["ok"]:
-                    rows.append((task, size, CUTE_NUMERIC_FAIL))
-            elif key in CUTE_COMPILE_FAIL:
-                rows.append((task, size, CUTE_COMPILE_FAIL[key]))
-            elif key == "attention":
-                rows.append((task, size, CUTE_TIMEOUT_FAIL))
-    return rows
-
-
-def render_failure_table(rows):
-    out = ["## CuteDSL backend — failure cases", "",
-           "Every (kernel, input size) that produces a **verified** result on the "
-           "Triton backend but **not** on the CuteDSL backend, with the reason. "
-           "Covers three modes: the kernel doesn't compile on `cute`, it compiles "
-           "but is numerically wrong, or its autotune doesn't converge in budget. "
-           "Full per-kernel context is in "
-           "[`benchmark_results_cute.md`](benchmark_results_cute.md).", ""]
-    if not rows:
-        out += ["_No CuteDSL failures._", ""]
-        return out
-    out += ["| Task | Input size | Why the Helion CuteDSL kernel didn't work |",
-            "|---|---|---|"]
-    for task, size, reason in rows:
-        out.append(f"| {task} | {size} | {reason} |")
-    out.append("")
-    return out
-
-
 lines = [INTRO, ""]
 triton_rows = build_rows("triton")
-cute_rows = build_rows("cute")
-lines += render_table("Aggregated benchmark results — Triton backend", triton_rows)
-cute_failures = []
-if cute_rows or os.path.isdir(f"{HH}/results/cute"):
-    lines += render_table("Aggregated benchmark results — CuteDSL backend", cute_rows)
-    cute_failures = build_cute_failures()
-    lines += render_failure_table(cute_failures)
+aot_rows = build_rows("triton_aot")
+lines += render_table("Aggregated benchmark results — Triton backend (autotuned)", triton_rows)
+if aot_rows:
+    lines += render_table(
+        "Aggregated benchmark results — Triton backend (pre-tuned / AOT)", aot_rows
+    )
+    lines += [
+        "> Same kernels shipping committed pre-tuned configs "
+        "(`@helion.experimental.aot_kernel`): the `Autotune time` column is now a "
+        "sub-second one-config compile instead of a full search. Per-shape "
+        "autotuned-vs-pre-tuned deltas are in "
+        "[`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md).",
+        "",
+    ]
 
 open(OUT, "w").write("\n".join(lines) + "\n")
-print(f"wrote {OUT}: {len(triton_rows)} triton rows, {len(cute_rows)} cute rows, "
-      f"{len(cute_failures)} cute failures")
+print(f"wrote {OUT}: {len(triton_rows)} triton rows, {len(aot_rows)} pre-tuned rows")

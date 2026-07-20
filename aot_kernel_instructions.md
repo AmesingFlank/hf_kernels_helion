@@ -99,19 +99,21 @@ You can point Helion at an alternate directory of heuristic files with
 The pre-tuned files are per-GPU. If you have a GPU for which no
 `_helion_aot_*_<device>_<compute>.py` exists, generate them once:
 
+All tooling lives under `scripts/`; run the commands below from the repo root.
+
 1. **Environment.** Ensure `helion`, `torch`, and (for our sweep) Bedrock creds
    for LLM-guided autotuning are available. Our tuning env is captured in
-   `aot_env.sh`.
+   `scripts/aot_env.sh`.
 
 2. **Run the sweep.** From the repo root:
 
    ```bash
-   bash run_aot_all.sh              # all kernels
+   bash scripts/run_aot_all.sh              # all kernels
    # or one kernel via the runner directly:
-   source aot_env.sh
+   source scripts/aot_env.sh
    python -m helion.experimental.aot_runner \
        --phase all --goal max_slowdown --threshold 1.15 --max-configs 8 \
-       -k activation -- python aot_tune.py activation
+       -k activation -- python scripts/aot_tune.py activation
    ```
 
    The runner executes four phases (see [The workflow](#the-workflow-under-the-hood)),
@@ -121,7 +123,7 @@ The pre-tuned files are per-GPU. If you have a GPU for which no
 3. **Sync to source of truth.**
 
    ```bash
-   python sync_aot_heuristics.py    # copies build/ heuristics -> torch-ext/
+   python scripts/sync_aot_heuristics.py    # copies build/ heuristics -> torch-ext/
    ```
 
 4. **Commit** the new `_helion_aot_*_<device>_<compute>.py` files. They live
@@ -130,9 +132,9 @@ The pre-tuned files are per-GPU. If you have a GPU for which no
 
 ### Adjusting which shapes are tuned
 
-`aot_tune.py` defines, per kernel, the exact input shapes exercised during
-tuning (they mirror the benchmark shapes in `rebench_llm.py`). To tune for
-different shapes, edit the `run_<kernel>()` functions there. The heuristic
+`scripts/aot_tune.py` defines, per kernel, the exact input shapes exercised
+during tuning (they mirror the benchmark shapes in `scripts/rebench_llm.py`). To
+tune for different shapes, edit the `run_<kernel>()` functions there. The heuristic
 generalizes across shapes via a decision tree, but it is most reliable on (and
 near) the shapes it was trained on. Prefer covering the shapes your workload
 actually uses.
@@ -172,13 +174,13 @@ files that must be committed for runtime use are the
 
 | File | Role |
 |---|---|
-| `torch-ext/<pkg>/*.py` | kernel source, decorated with `@aot_kernel` |
-| `torch-ext/<pkg>/_helion_aot_*_<dev>_<compute>.py` | committed pre-tuned heuristic (source of truth) |
-| `build/torch-cuda/…` | loadable copy (via `rebuild_noarch.py`); what `get_kernel` runs |
-| `aot_tune.py` | per-kernel tuning-shape driver |
-| `run_aot_all.sh` | sweep all kernels through the AOT runner |
-| `sync_aot_heuristics.py` | copy generated heuristics `build/` → `torch-ext/` |
-| `aot_env.sh` | autotuner env (LLM-guided, Bedrock) used during collect |
+| `<kernel>/…/torch-ext/<pkg>/*.py` | kernel source, decorated with `@aot_kernel` |
+| `<kernel>/…/torch-ext/<pkg>/_helion_aot_*_<dev>_<compute>.py` | committed pre-tuned heuristic (source of truth) |
+| `<kernel>/…/build/torch-cuda/…` | loadable copy (via `scripts/rebuild_noarch.py`); what `get_kernel` runs |
+| `scripts/aot_tune.py` | per-kernel tuning-shape driver |
+| `scripts/run_aot_all.sh` | sweep all kernels through the AOT runner |
+| `scripts/sync_aot_heuristics.py` | copy generated heuristics `build/` → `torch-ext/` |
+| `scripts/aot_env.sh` | autotuner env (LLM-guided, Bedrock) used during collect |
 
 ## Caveats
 

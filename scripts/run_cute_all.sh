@@ -28,7 +28,7 @@ for k in "${KERNELS[@]}"; do
   TMO=$(timeout_for "$k")
   for s in "${SHAPES[@]}"; do
     echo "########## cute $k $s (timeout ${TMO}s) ##########"
-    REBENCH_SHAPE="$s" timeout "$TMO" ~/.venv/bin/python rebench_llm.py "$k" 2>&1 \
+    REBENCH_SHAPE="$s" timeout "$TMO" ~/.venv/bin/python scripts/rebench_llm.py "$k" 2>&1 \
       | grep -E "helion=|WROTE|=== |Error|Traceback|BackendUnsupported|CompilationError|NotImplemented|ok=False|InvalidConfig" | tail -6
     echo "---- exit ${PIPESTATUS[0]} ----"
   done
