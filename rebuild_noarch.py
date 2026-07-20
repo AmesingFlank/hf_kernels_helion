@@ -89,17 +89,7 @@ for te in SUBS:
         continue
     pkg = pkgs[0]
     build = f"{sub}/build/torch-cuda"
-    # Skip if already a working real dir (e.g. sage) with _ops.py present.
-    if os.path.isfile(f"{build}/_ops.py") and os.path.isfile(f"{build}/__init__.py"):
-        # ensure result symlink exists
-        res = f"{sub}/result"
-        if not (os.path.islink(res) and os.path.exists(res)):
-            if os.path.lexists(res):
-                os.remove(res)
-            os.symlink("build", res)
-        print(f"  keep {pkg} (already built)")
-        done += 1
-        continue
+    already = os.path.isfile(f"{build}/_ops.py") and os.path.isfile(f"{build}/__init__.py")
 
     # dash-form kernel name from build.toml (the `kernels` lib validates it)
     kname = pkg.replace("_", "-")
@@ -112,32 +102,34 @@ for te in SUBS:
                 break
 
     os.makedirs(build, exist_ok=True)
-    # 1) flatten torch-ext/<pkg>/*.py into build/torch-cuda/
+    # 1) ALWAYS re-sync torch-ext/<pkg>/*.py into build/torch-cuda/ (source of
+    #    truth). This includes any pre-tuned `_helion_aot_*.py` heuristic files,
+    #    so the runtime location (build/, symlinked as result/) picks them up.
     srcpkg = f"{te}/{pkg}"
     for f in os.listdir(srcpkg):
         if f.endswith(".py"):
             shutil.copy2(f"{srcpkg}/{f}", f"{build}/{f}")
-    # 2) _ops.py with a stable unique id derived from the pkg name
-    uid = hashlib.sha1(pkg.encode()).hexdigest()[:7]
-    open(f"{build}/_ops.py", "w").write(OPS_PY_TMPL.format(pkg=pkg, uid=uid))
-    # 3) metadata.json matching kernel-builder's schema (name = dash-form)
-    json.dump({
-        "name": kname,
-        "id": f"_{pkg}_cuda_{uid}",
-        "version": 1,
-        "license": "Apache-2.0",
-        "python-depends": ["helion"],
-        "backend": {"type": "cuda"},
-    }, open(f"{build}/metadata.json", "w"), indent=2)
-    # 4) nested pkg shim
-    os.makedirs(f"{build}/{pkg}", exist_ok=True)
-    open(f"{build}/{pkg}/__init__.py", "w").write(SHIM_TMPL)
+    # 2-4) generate the packaging glue only if missing (don't clobber on re-sync).
+    if not already:
+        uid = hashlib.sha1(pkg.encode()).hexdigest()[:7]
+        open(f"{build}/_ops.py", "w").write(OPS_PY_TMPL.format(pkg=pkg, uid=uid))
+        json.dump({
+            "name": kname,
+            "id": f"_{pkg}_cuda_{uid}",
+            "version": 1,
+            "license": "Apache-2.0",
+            "python-depends": ["helion"],
+            "backend": {"type": "cuda"},
+        }, open(f"{build}/metadata.json", "w"), indent=2)
+        os.makedirs(f"{build}/{pkg}", exist_ok=True)
+        open(f"{build}/{pkg}/__init__.py", "w").write(SHIM_TMPL)
     # 5) result -> build symlink
     res = f"{sub}/result"
-    if os.path.lexists(res):
-        os.remove(res)
-    os.symlink("build", res)
-    print(f"  rebuilt {pkg}")
+    if not (os.path.islink(res) and os.path.exists(res)):
+        if os.path.lexists(res):
+            os.remove(res)
+        os.symlink("build", res)
+    print(f"  {'synced' if already else 'rebuilt'} {pkg}")
     done += 1
 
 print(f"reconstructed/verified {done} noarch kernels")

@@ -1,0 +1,6 @@
+export HELION_AUTOTUNER=LLMGuidedSearch
+export HELION_LLM_PROVIDER=bedrock
+export HELION_LLM_MODEL=us.anthropic.claude-haiku-4-5-20251001-v1:0
+export AWS_REGION=us-east-2
+export HELION_AUTOTUNE_BENCHMARK_SUBPROCESS=0
+export HELION_AUTOTUNE_IGNORE_ERRORS=1

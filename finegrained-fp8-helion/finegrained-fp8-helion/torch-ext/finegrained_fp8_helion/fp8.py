@@ -13,10 +13,11 @@ from __future__ import annotations
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _w8a8_block_fp8_matmul(
     A: torch.Tensor, B: torch.Tensor, As: torch.Tensor, Bs: torch.Tensor,
     block_n: hl.constexpr, block_k: hl.constexpr,

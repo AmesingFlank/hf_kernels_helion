@@ -2,10 +2,11 @@
 from __future__ import annotations
 import torch
 import helion
+import helion.experimental
 import helion.language as hl
 
 
-@helion.kernel()
+@helion.experimental.aot_kernel()
 def _rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
     m, n = x.size()
     out = torch.empty_like(x)

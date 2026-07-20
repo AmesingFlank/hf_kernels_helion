@@ -10,10 +10,11 @@ from __future__ import annotations
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _causal_conv1d(
     x: torch.Tensor, weight: torch.Tensor, bias: torch.Tensor, apply_silu: hl.constexpr
 ) -> torch.Tensor:

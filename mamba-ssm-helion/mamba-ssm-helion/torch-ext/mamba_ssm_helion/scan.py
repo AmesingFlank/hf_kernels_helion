@@ -15,10 +15,11 @@ import torch
 import torch.nn.functional as F
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _selective_scan(
     u, delta, A, Bm, Cm, D_, z,
     delta_softplus: hl.constexpr, use_z: hl.constexpr,

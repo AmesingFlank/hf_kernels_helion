@@ -14,10 +14,11 @@ from __future__ import annotations
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _deform_attn(
     value: torch.Tensor, sampling_loc: torch.Tensor, attn_weight: torch.Tensor,
     Hgrid: int, Wgrid: int, Dh: hl.constexpr, P: hl.constexpr, H: hl.constexpr,

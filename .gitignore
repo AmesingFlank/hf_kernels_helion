@@ -13,3 +13,6 @@ __pycache__/
 
 # transient run logs
 *.log
+
+# AOT tuning run artifacts (transient; only the _helion_aot_*.py heuristics beside kernels matter)
+.helion_aot/

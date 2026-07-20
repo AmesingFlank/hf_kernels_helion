@@ -17,12 +17,13 @@ from __future__ import annotations
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 _LOG2E = 1.4426950408889634
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _paged_attention_v1(
     out: torch.Tensor,
     query: torch.Tensor,

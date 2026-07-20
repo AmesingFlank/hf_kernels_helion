@@ -17,6 +17,7 @@ import math
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 # These kernels autotune per input shape on first use and cache the result
@@ -42,7 +43,7 @@ def _sdpa_baseline(q, k, v, *, causal):
     return torch.nn.functional.scaled_dot_product_attention(q, k, v, is_causal=causal)
 
 
-@helion.kernel(
+@helion.experimental.aot_kernel(
     static_shapes=True,
     autotune_baseline_fn=lambda q, k, v: _sdpa_baseline(q, k, v, causal=False),
     autotune_baseline_atol=5e-2,
@@ -90,7 +91,7 @@ def attention_output(
     return out.view(q_in.size())
 
 
-@helion.kernel(
+@helion.experimental.aot_kernel(
     static_shapes=True,
     autotune_baseline_fn=lambda q, k, v: _sdpa_baseline(q, k, v, causal=True),
     autotune_baseline_atol=5e-2,

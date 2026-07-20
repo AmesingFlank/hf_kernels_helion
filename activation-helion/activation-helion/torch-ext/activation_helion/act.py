@@ -12,12 +12,13 @@ import math
 import torch
 
 import helion
+import helion.experimental
 import helion.language as hl
 
 _SQRT_2_OVER_PI = math.sqrt(2.0 / math.pi)
 
 
-@helion.kernel()
+@helion.experimental.aot_kernel()
 def _silu_and_mul(out: torch.Tensor, x: torch.Tensor) -> None:
     """out = silu(x[..., :d]) * x[..., d:], flattened to [num_rows, d]."""
     n_rows, d = out.size()
@@ -28,7 +29,7 @@ def _silu_and_mul(out: torch.Tensor, x: torch.Tensor) -> None:
         out[tile_r, tile_d] = (silu.to(b.dtype) * b).to(out.dtype)
 
 
-@helion.kernel()
+@helion.experimental.aot_kernel()
 def _gelu_and_mul(out: torch.Tensor, x: torch.Tensor) -> None:
     """out = gelu(x[..., :d]) * x[..., d:] (exact erf gelu)."""
     n_rows, d = out.size()
@@ -39,7 +40,7 @@ def _gelu_and_mul(out: torch.Tensor, x: torch.Tensor) -> None:
         out[tile_r, tile_d] = (gelu.to(b.dtype) * b).to(out.dtype)
 
 
-@helion.kernel()
+@helion.experimental.aot_kernel()
 def _gelu_tanh_and_mul(out: torch.Tensor, x: torch.Tensor) -> None:
     """out = gelu_tanh(x[..., :d]) * x[..., d:] (tanh approximation)."""
     n_rows, d = out.size()

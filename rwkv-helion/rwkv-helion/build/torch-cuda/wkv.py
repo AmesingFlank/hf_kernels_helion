@@ -14,12 +14,13 @@ w,u: [C]; k,v: [B,T,C]. Sequential over T inside the kernel.
 from __future__ import annotations
 import torch
 import helion
+import helion.experimental
 import helion.language as hl
 
 _NEG_INF = -1e38
 
 
-@helion.kernel(static_shapes=False)
+@helion.experimental.aot_kernel(static_shapes=False)
 def _rwkv_wkv(w: torch.Tensor, u: torch.Tensor, k: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     B, T, C = k.shape
     out = torch.empty_like(v)
