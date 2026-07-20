@@ -5,8 +5,8 @@ against the same `kernels-community` references. The difference is *how the
 config was obtained*:
 
 - **autotuned** (`results/triton/`): from-scratch LLM-guided autotuning on this
-  machine — what the original `benchmark_results_triton.md` measured. The
-  `autotune` column is the wall-clock search time paid on first use.
+  machine — the `autotune` column is the wall-clock search time paid on first
+  use if the kernel had no pre-tuned config.
 - **pre-tuned** (`results/triton_aot/`): the kernel ships a committed
   `_helion_aot_*_cuda_sm100.py` heuristic (`@aot_kernel`, `HELION_AOT_MODE=
   evaluate`). No search happens; the `autotune` column is just the one-config
@@ -23,7 +23,7 @@ Autotuning-time totals below exclude shapes that only exist in one mode.
 
 | input size | autotuned Helion (ms) | pre-tuned Helion (ms) | autotuned speedup | pre-tuned speedup | Δ speed | autotune→pre-tune (s) | verified |
 |---|---|---|---|---|---|---|---|
-| small 8x1024x2048 | 0.0257 | 0.0299 | 1.68× | 1.43× | 0.85× | 142 → 0.6 | ✓ |
+| small 8x1024x2048 | 0.0257 | 0.0317 | 1.68× | 1.35× | 0.80× | 142 → 0.5 | ✓ |
 | medium 8x2048x4096 | 0.0310 | 0.0335 | 4.61× | 4.25× | 0.92× | 114 → 0.5 | ✓ |
 | large 8x4096x8192 | 0.1224 | 0.1228 | 3.67× | 3.65× | 0.99× | 103 → 0.6 | ✓ |
 
@@ -127,7 +127,7 @@ _Group sizes differ slightly between the two harnesses (random totals when autot
 ## Summary
 
 - **38 kernel×shape** pairs compared (present in both modes).
-- **Total autotune time: 4065s → 38.6s** (105× faster time-to-first-run) — the pre-tuned kernels skip the search entirely.
-- **Performance retained: geomean Δ speed = 1.023×** (pre-tuned vs individually-autotuned); i.e. the shipped configs are within ~2% of per-shape-optimal on average.
+- **Total autotune time: 4065s → 38.5s** (106× faster time-to-first-run) — the pre-tuned kernels skip the search entirely.
+- **Performance retained: geomean Δ speed = 1.022×** (pre-tuned vs individually-autotuned); i.e. the shipped configs are within ~2% of per-shape-optimal on average.
 - Min Δ speed = 0.79×, max = 2.01× across all shapes.
 

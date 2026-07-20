@@ -39,27 +39,23 @@ elementwise/activation, normalization, rotary embeddings, state-space models
 (Mamba, RWKV), MoE/grouped GEMM, quantized GEMM, deformable and paged attention,
 and INT8-quantized (SageAttention2) and full-precision flash attention.
 
-These are benchmarked on Helion's default **Triton** backend. The aggregated
-table below gives the per-shape results; the full per-kernel table is in
-[`benchmark_results_triton.md`](benchmark_results_triton.md).
-
-`Helion speed vs reference` = reference latency / Helion latency (>1 → Helion is
-faster). `verified ✗` marks a shape where the Helion output did not match the
-reference (kept for transparency). `Autotune time` is the wall-clock time
-Helion's LLM-guided autotuner spent searching configs for that shape, in its own
-fresh process.
-
-## Pre-tuned (AOT) kernels
-
-The Triton kernels ship **pre-tuned configs** (`@helion.experimental.aot_kernel`)
-so downloaders skip autotuning entirely — first call is a sub-second compile
-instead of minutes of search. Across the 38 kernel×shape pairs, shipping the
-pre-tuned configs cuts total autotune time **4065 s → 39 s (~105× faster
+These are benchmarked on Helion's default **Triton** backend, and ship
+**pre-tuned configs** (`@helion.experimental.aot_kernel`) so downloaders skip
+autotuning entirely — the first call is a sub-second compile of the shipped
+config instead of minutes of search. Across the 38 kernel×shape pairs, shipping
+the pre-tuned configs cuts total autotune time **4065 s → 39 s (~105× faster
 time-to-first-run)** while retaining performance to **geomean 1.02× of
 per-shape-optimal**. See
 [`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md) for the
-per-shape comparison and [`aot_kernel_instructions.md`](aot_kernel_instructions.md)
-for how to use pre-tuned kernels and add tunings for new hardware.
+per-shape pre-tuned-vs-autotuned comparison and
+[`aot_kernel_instructions.md`](aot_kernel_instructions.md) for how to use
+pre-tuned kernels and add tunings for new hardware.
+
+The table below reports the pre-tuned kernels. `Helion speed vs reference` =
+reference latency / Helion latency (>1 → Helion is faster). `verified ✗` marks a
+shape where the Helion output did not match the reference (kept for
+transparency). `Autotune time` is the wall-clock time of that first-call compile
+(a full autotuning search would instead cost tens of seconds to minutes).
 """
 
 
@@ -108,21 +104,10 @@ def render_table(title, rows):
 
 
 lines = [INTRO, ""]
-triton_rows = build_rows("triton")
 aot_rows = build_rows("triton_aot")
-lines += render_table("Aggregated benchmark results — Triton backend (autotuned)", triton_rows)
-if aot_rows:
-    lines += render_table(
-        "Aggregated benchmark results — Triton backend (pre-tuned / AOT)", aot_rows
-    )
-    lines += [
-        "> Same kernels shipping committed pre-tuned configs "
-        "(`@helion.experimental.aot_kernel`): the `Autotune time` column is now a "
-        "sub-second one-config compile instead of a full search. Per-shape "
-        "autotuned-vs-pre-tuned deltas are in "
-        "[`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md).",
-        "",
-    ]
+lines += render_table(
+    "Aggregated benchmark results — Triton backend (pre-tuned / AOT)", aot_rows
+)
 
 open(OUT, "w").write("\n".join(lines) + "\n")
-print(f"wrote {OUT}: {len(triton_rows)} triton rows, {len(aot_rows)} pre-tuned rows")
+print(f"wrote {OUT}: {len(aot_rows)} pre-tuned rows")

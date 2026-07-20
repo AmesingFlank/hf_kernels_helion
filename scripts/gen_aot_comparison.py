@@ -48,8 +48,8 @@ against the same `kernels-community` references. The difference is *how the
 config was obtained*:
 
 - **autotuned** (`results/triton/`): from-scratch LLM-guided autotuning on this
-  machine — what the original `benchmark_results_triton.md` measured. The
-  `autotune` column is the wall-clock search time paid on first use.
+  machine — the `autotune` column is the wall-clock search time paid on first
+  use if the kernel had no pre-tuned config.
 - **pre-tuned** (`results/triton_aot/`): the kernel ships a committed
   `_helion_aot_*_cuda_sm100.py` heuristic (`@aot_kernel`, `HELION_AOT_MODE=
   evaluate`). No search happens; the `autotune` column is just the one-config

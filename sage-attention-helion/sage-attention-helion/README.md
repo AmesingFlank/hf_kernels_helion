@@ -61,7 +61,7 @@ attention; numerically both track full-precision SDPA to ~1% relative error:
 | SageAttention2 CUDA reference | ~0.0115 |
 | this kernel vs the CUDA reference | ~0.013 (INT8 noise floor) |
 
-See `../../benchmark_results_triton.md` for the full head-to-head speed table.
+See `../../benchmark_results_triton_aot.md` for the full head-to-head speed table.
 
 ## Upstream
 
