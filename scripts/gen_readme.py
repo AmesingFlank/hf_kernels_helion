@@ -52,10 +52,10 @@ per-shape pre-tuned-vs-autotuned comparison and
 pre-tuned kernels and add tunings for new hardware.
 
 The table below reports the pre-tuned kernels. `Helion speed vs reference` =
-reference latency / Helion latency (>1 → Helion is faster). `verified ✗` marks a
-shape where the Helion output did not match the reference (kept for
-transparency). `Autotune time` is the wall-clock time of that first-call compile
-(a full autotuning search would instead cost tens of seconds to minutes).
+reference latency / Helion latency (>1 → Helion is faster). Every row is
+numerically verified against the reference; per-shape verification and
+first-call compile times are in
+[`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md).
 """
 
 
@@ -95,10 +95,10 @@ def render_table(title, rows):
     if not rows:
         out += ["_No results for this backend yet._", ""]
         return out
-    out += ["| Task | Reference | Helion speed vs reference | Verified | Autotune time |",
-            "|---|---|---|---|---|"]
+    out += ["| Task | Reference | Helion speed vs reference |",
+            "|---|---|---|"]
     for _, task, ref_md, sp, ok, at in rows:
-        out.append(f"| {task} | {ref_md} | {sp} | {ok} | {at} |")
+        out.append(f"| {task} | {ref_md} | {sp} |")
     out.append("")
     return out
 
