@@ -24,6 +24,18 @@ reference (kept for transparency). `Autotune time` is the wall-clock time
 Helion's LLM-guided autotuner spent searching configs for that shape, in its own
 fresh process.
 
+## Pre-tuned (AOT) kernels
+
+The Triton kernels ship **pre-tuned configs** (`@helion.experimental.aot_kernel`)
+so downloaders skip autotuning entirely — first call is a sub-second compile
+instead of minutes of search. Across the 38 kernel×shape pairs, shipping the
+pre-tuned configs cuts total autotune time **4065 s → 39 s (~105× faster
+time-to-first-run)** while retaining performance to **geomean 1.02× of
+per-shape-optimal**. See
+[`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md) for the
+per-shape comparison and [`aot_kernel_instructions.md`](aot_kernel_instructions.md)
+for how to use pre-tuned kernels and add tunings for new hardware.
+
 
 ## Aggregated benchmark results — Triton backend
 
