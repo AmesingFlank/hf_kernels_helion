@@ -19,6 +19,6 @@ def key__silu_and_mul(*args) -> int:
 def autotune__silu_and_mul(*args) -> dict:
     """Select the optimal config for the given arguments."""
     _C = [
-        {'block_sizes': [1, 1024], 'loop_orders': [[0, 1]], 'l2_groupings': [1], 'range_unroll_factors': [0], 'range_warp_specializes': [None], 'range_num_stages': [], 'range_multi_buffers': [None], 'range_flattens': [None], 'load_eviction_policies': ['', ''], 'num_warps': 4, 'num_stages': 1, 'indexing': ['tensor_descriptor', 'tensor_descriptor', 'tensor_descriptor'], 'atomic_indexing': [], 'pid_type': 'flat'},
+        {'block_sizes': [8, 256], 'loop_orders': [[0, 1]], 'l2_groupings': [1], 'range_unroll_factors': [0], 'range_warp_specializes': [None], 'range_num_stages': [], 'range_multi_buffers': [None], 'range_flattens': [None], 'load_eviction_policies': ['', ''], 'num_warps': 4, 'num_stages': 1, 'indexing': ['pointer', 'pointer', 'pointer'], 'atomic_indexing': [], 'pid_type': 'flat'},
     ]
     return _C[key__silu_and_mul(*args)]
