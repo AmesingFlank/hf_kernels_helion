@@ -19,6 +19,6 @@ def key_attention_output(*args) -> int:
 def autotune_attention_output(*args) -> dict:
     """Select the optimal config for the given arguments."""
     _C = [
-        {'block_sizes': [1, 64, 64], 'loop_orders': [[0, 1]], 'l2_groupings': [1], 'range_unroll_factors': [0, 0], 'range_warp_specializes': [None, None], 'range_num_stages': [0, 0], 'range_multi_buffers': [None, None], 'range_flattens': [None, None], 'load_eviction_policies': ['', '', ''], 'num_warps': 4, 'num_stages': 2, 'indexing': ['pointer', 'pointer', 'pointer', 'pointer'], 'atomic_indexing': [], 'pid_type': 'flat'},
+        {'block_sizes': [1, 128, 64], 'loop_orders': [[1, 0]], 'l2_groupings': [1], 'range_unroll_factors': [0, 4], 'range_warp_specializes': [None, False], 'range_num_stages': [0, 4], 'range_multi_buffers': [None, None], 'range_flattens': [None, False], 'load_eviction_policies': ['', 'last', ''], 'num_warps': 4, 'num_stages': 3, 'indexing': ['tensor_descriptor', 'tensor_descriptor', 'pointer', 'pointer'], 'atomic_indexing': [], 'pid_type': 'flat'},
     ]
     return _C[key_attention_output(*args)]
