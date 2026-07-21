@@ -19,6 +19,6 @@ def key__rwkv_wkv(*args) -> int:
 def autotune__rwkv_wkv(*args) -> dict:
     """Select the optimal config for the given arguments."""
     _C = [
-        {'block_sizes': [4, 64], 'loop_orders': [[0, 1]], 'l2_groupings': [32], 'range_unroll_factors': [0, 0], 'range_warp_specializes': [None, True], 'range_num_stages': [0, 2], 'range_multi_buffers': [None, False], 'range_flattens': [None, False], 'load_eviction_policies': ['', '', '', 'first'], 'num_warps': 4, 'num_stages': 7, 'indexing': ['tensor_descriptor', 'tensor_descriptor', 'tensor_descriptor', 'tensor_descriptor', 'pointer'], 'atomic_indexing': [], 'pid_type': 'xyz'},
+        {'block_sizes': [1, 16], 'loop_orders': [[0, 1]], 'l2_groupings': [1], 'range_unroll_factors': [0, 0], 'range_warp_specializes': [None, None], 'range_num_stages': [0, 0], 'range_multi_buffers': [None, None], 'range_flattens': [None, False], 'load_eviction_policies': ['last', 'first', '', ''], 'num_warps': 1, 'num_stages': 1, 'indexing': ['pointer', 'pointer', 'tensor_descriptor', 'tensor_descriptor', 'pointer'], 'atomic_indexing': [], 'pid_type': 'xyz'},
     ]
     return _C[key__rwkv_wkv(*args)]
