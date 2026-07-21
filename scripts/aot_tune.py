@@ -3,13 +3,20 @@
 
 Usage (from anywhere, after activating the venv):
 
-    python scripts/aot_tune.py            # tune ALL kernels, 7 shapes each (full effort)
+    python scripts/aot_tune.py            # tune ALL kernels, 7 shapes each
     python scripts/aot_tune.py rwkv fp8   # tune only the named kernels
-    python scripts/aot_tune.py --effort quick   # much faster, slightly lower quality
+    python scripts/aot_tune.py --effort quick   # override effort for this run
 
-Effort defaults to ``full`` (the most thorough search; best for an overnight
-run). Use ``--effort quick`` for a ~5-10x faster pass. Progress is printed per
-kernel (index, done/remaining, elapsed, ETA).
+Autotuner choice comes from the ENVIRONMENT, not this script — export
+``HELION_AUTOTUNER`` (and ``HELION_LLM_PROVIDER``/``HELION_LLM_MODEL`` for the
+LLM-guided tuner) as usual; unset means Helion's default (LFBOTreeSearch). E.g.:
+
+    HELION_AUTOTUNER=LLMGuidedSearch HELION_LLM_PROVIDER=bedrock \\
+      HELION_LLM_MODEL=... python scripts/aot_tune.py
+
+Effort follows the same rule: ``--effort {quick,full}`` overrides for this run,
+else the ambient ``HELION_AUTOTUNE_EFFORT``, else Helion's default. Progress is
+printed per kernel (index, done/remaining, elapsed, ETA).
 
 What it does, per kernel:
   1. runs Helion's AOT collect -> measure -> build workflow across 7 input
@@ -286,17 +293,24 @@ def _sync_heuristics() -> None:
             shutil.copy2(heur, pkgs[0] / heur.name)
 
 
-def _orchestrate(names: list[str], effort: str) -> None:
+def _orchestrate(names: list[str], effort: str | None) -> None:
     tag = _hardware_tag()
-    print(f"=== AOT pre-tuning {len(names)} kernel(s) for {tag} "
-          f"(default LFBO autotuner, effort={effort}, 7 shapes each) ===", flush=True)
+    # The autotuner is chosen by the ambient environment, NOT by this script:
+    # whatever HELION_AUTOTUNER (+ any HELION_LLM_* for the LLM tuner) you export
+    # is passed straight through. Unset -> Helion's default (LFBOTreeSearch).
     env = dict(os.environ)
-    env["HELION_AUTOTUNE_EFFORT"] = effort
-    env["HELION_AUTOTUNE_BENCHMARK_SUBPROCESS"] = "0"
-    env["HELION_AUTOTUNE_IGNORE_ERRORS"] = "1"
-    env.pop("HELION_AUTOTUNER", None)          # -> default LFBOTreeSearch
-    env.pop("HELION_LLM_PROVIDER", None)
-    env.pop("HELION_LLM_MODEL", None)
+    autotuner = env.get("HELION_AUTOTUNER") or "default (LFBOTreeSearch)"
+    # Effort: honor an explicit --effort flag; else an ambient
+    # HELION_AUTOTUNE_EFFORT; else Helion's own default (full).
+    if effort is not None:
+        env["HELION_AUTOTUNE_EFFORT"] = effort
+    eff = env.get("HELION_AUTOTUNE_EFFORT", "full (helion default)")
+    # Operational defaults required for AOT-tuning get_local_kernel modules
+    # (harmless to the autotuner choice); keep any value the user already set.
+    env.setdefault("HELION_AUTOTUNE_BENCHMARK_SUBPROCESS", "0")
+    env.setdefault("HELION_AUTOTUNE_IGNORE_ERRORS", "1")
+    print(f"=== AOT pre-tuning {len(names)} kernel(s) for {tag} "
+          f"(autotuner={autotuner}, effort={eff}, 7 shapes each) ===", flush=True)
 
     import time
 
@@ -354,7 +368,9 @@ def main() -> None:
         _drive_one(args[1])
         return
 
-    effort = "full"
+    # Effort is optional: only override when --effort is passed; otherwise the
+    # ambient HELION_AUTOTUNE_EFFORT (or Helion's default) applies.
+    effort = None
     if "--effort" in args:
         i = args.index("--effort")
         effort = args[i + 1]

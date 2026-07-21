@@ -40,16 +40,14 @@ elementwise/activation, normalization, rotary embeddings, state-space models
 and INT8-quantized (SageAttention2) and full-precision flash attention.
 
 These are benchmarked on Helion's default **Triton** backend, and ship
-**pre-tuned configs** (`@helion.aot_kernel`, produced ahead-of-time by the
-default LFBO autotuner) so downloaders skip autotuning entirely — the first call
-is a sub-second compile of the shipped config instead of minutes of search.
-Across the {n_rows} kernel×shape pairs, shipping the pre-tuned configs cuts total
-first-use autotuning **{auto_before:.0f} s → {auto_after:.0f} s (~{speedup_x:.0f}× faster
-time-to-first-run)**. See
+**pre-tuned configs** (`@helion.aot_kernel`) so downloaders skip autotuning
+entirely — the first call is a sub-second compile of the shipped config instead
+of minutes of search. Across the {n_rows} kernel×shape pairs, shipping the
+pre-tuned configs cuts total first-use autotuning **{auto_before:.0f} s →
+{auto_after:.0f} s (~{speedup_x:.0f}× faster time-to-first-run)** while retaining
+performance to **geomean {geomean:.2f}× of per-shape-optimal**. See
 [`benchmark_results_triton_aot.md`](benchmark_results_triton_aot.md) for the
-per-shape pre-tuned-vs-autotuned comparison (the shipped configs land within a
-few % of the earlier per-shape search on average, better on some kernels and
-worse on others) and
+per-shape pre-tuned-vs-autotuned comparison and
 [`aot_kernel_instructions.md`](aot_kernel_instructions.md) for how to use
 pre-tuned kernels and add tunings for new hardware.
 
@@ -110,6 +108,8 @@ def render_table(title, rows):
 # first-call compile (results/triton_aot) over shapes present in both.
 _before = _after = 0.0
 _n = 0
+_logsum = 0.0  # for geomean of per-shape Δ speed (pre-tuned / autotuned)
+import math as _math
 for key, *_ in KERNELS:
     base = load("triton", key) or []
     aot = {r["size"]: r for r in (load("triton_aot", key) or [])}
@@ -120,12 +120,15 @@ for key, *_ in KERNELS:
             continue
         _before += r["autotune_s"]
         _after += a["autotune_s"]
+        if r["speedup"] > 0 and a["speedup"] > 0:
+            _logsum += _math.log(a["speedup"] / r["speedup"])
         _n += 1
 _stats = {
     "n_rows": _n,
     "auto_before": _before,
     "auto_after": _after,
     "speedup_x": (_before / _after) if _after else 0.0,
+    "geomean": _math.exp(_logsum / _n) if _n else 0.0,
 }
 
 lines = [INTRO.format(**_stats), ""]

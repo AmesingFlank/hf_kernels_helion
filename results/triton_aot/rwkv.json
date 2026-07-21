@@ -2,28 +2,28 @@
   {
     "kernel": "rwkv.wkv",
     "size": "small 4x256x512",
-    "helion_ms": 0.0667,
-    "ref_ms": 0.0543,
-    "speedup": 0.814,
-    "autotune_s": 0.9,
+    "helion_ms": 0.0669,
+    "ref_ms": 0.0544,
+    "speedup": 0.813,
+    "autotune_s": 0.8,
     "ok": true
   },
   {
     "kernel": "rwkv.wkv",
     "size": "medium 8x1024x1024",
-    "helion_ms": 0.6265,
-    "ref_ms": 0.5489,
-    "speedup": 0.876,
-    "autotune_s": 0.8,
+    "helion_ms": 0.2489,
+    "ref_ms": 0.5395,
+    "speedup": 2.168,
+    "autotune_s": 0.7,
     "ok": true
   },
   {
     "kernel": "rwkv.wkv",
     "size": "large 16x1024x2048",
-    "helion_ms": 0.6557,
+    "helion_ms": 0.2491,
     "ref_ms": 0.6154,
-    "speedup": 0.939,
-    "autotune_s": 0.8,
+    "speedup": 2.471,
+    "autotune_s": 0.7,
     "ok": true
   }
 ]

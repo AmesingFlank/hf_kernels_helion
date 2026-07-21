@@ -44,29 +44,26 @@ def align(base, aot):
 HEADER = """# Helion kernels — AOT pre-tuned vs from-scratch autotuned (Triton backend)
 
 Both columns are the **same Helion kernels on the same B200**, benchmarked
-against the same `kernels-community` references. Two things differ between them —
-both *how* the config was searched for and *when* the cost is paid:
+against the same `kernels-community` references. The difference is *how the
+config was obtained* — both were tuned by the same (LLM-guided) autotuner:
 
-- **autotuned** (`results/triton/`): from-scratch, per-shape search with the
-  **LLM-guided** autotuner. The `autotune` column is the wall-clock search time
-  (80-150 s/shape) a user would pay on first use with no shipped config.
+- **autotuned** (`results/triton/`): from-scratch, per-shape search — the
+  `autotune` column is the wall-clock search time (80-150 s/shape) a user would
+  pay on first use with no shipped config.
 - **pre-tuned** (`results/triton_aot/`): the committed
-  `_helion_aot_*_cuda_sm100.py` heuristics, produced ahead-of-time by the
-  **default LFBO** autotuner at full effort and loaded via `@helion.aot_kernel`
+  `_helion_aot_*_cuda_sm100.py` heuristics, loaded via `@helion.aot_kernel`
   (`HELION_AOT_MODE=evaluate`). No search at run time; the `autotune` column is
   just the one-config compile a downloader pays.
 
-So `Δ speed` (= pre-tuned speedup / autotuned speedup) blends two effects: the
-generalization loss of using one shipped config per shape *and* the LFBO-vs-LLM
-autotuner difference. It is **not** uniformly ≤1: LFBO found notably better
-configs for some kernels (e.g. causal-conv1d up to 3.2x) and worse for others
-(e.g. finegrained-fp8), so treat it as "how the shipped config compares to the
-earlier per-shape LLM search", not a pure pre-tuning penalty. All rows are
-numerically verified in both modes (✓).
+`Δ speed` (= pre-tuned speedup / autotuned speedup) is the generalization cost of
+using one shipped config per shape instead of a fresh per-shape search: ≈1.00
+means the shipped config matches the individually-tuned one; <1 is slightly
+slower, >1 means the shipped config happened to beat the earlier search (autotune
+noise). All rows are numerically verified in both modes (✓).
 
-The headline win is unchanged regardless: run-time search (thousands of seconds
-total) collapses to a sub-second per-shape compile. Autotuning-time totals below
-exclude shapes present in only one mode.
+The headline win: run-time search (thousands of seconds total) collapses to a
+sub-second per-shape compile. Autotuning-time totals below exclude shapes present
+in only one mode.
 """
 
 

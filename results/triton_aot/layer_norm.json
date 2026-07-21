@@ -2,28 +2,28 @@
   {
     "kernel": "layer_norm.rms_fwd",
     "size": "small 256x768",
-    "helion_ms": 0.0346,
-    "ref_ms": 0.01,
-    "speedup": 0.29,
-    "autotune_s": 0.7,
+    "helion_ms": 0.0298,
+    "ref_ms": 0.0127,
+    "speedup": 0.427,
+    "autotune_s": 0.5,
     "ok": true
   },
   {
     "kernel": "layer_norm.rms_fwd",
     "size": "medium 2048x2048",
-    "helion_ms": 0.0323,
-    "ref_ms": 0.0127,
-    "speedup": 0.394,
-    "autotune_s": 0.7,
+    "helion_ms": 0.0312,
+    "ref_ms": 0.0109,
+    "speedup": 0.351,
+    "autotune_s": 0.5,
     "ok": true
   },
   {
     "kernel": "layer_norm.rms_fwd",
     "size": "large 16384x8192",
-    "helion_ms": 0.0822,
-    "ref_ms": 0.2175,
-    "speedup": 2.645,
-    "autotune_s": 0.7,
+    "helion_ms": 0.0966,
+    "ref_ms": 0.2227,
+    "speedup": 2.306,
+    "autotune_s": 0.5,
     "ok": true
   }
 ]
