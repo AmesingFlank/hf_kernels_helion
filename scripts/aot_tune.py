@@ -3,9 +3,13 @@
 
 Usage (from anywhere, after activating the venv):
 
-    python scripts/aot_tune.py            # tune ALL kernels, 7 shapes each
+    python scripts/aot_tune.py            # tune ALL kernels, 7 shapes each (full effort)
     python scripts/aot_tune.py rwkv fp8   # tune only the named kernels
-    python scripts/aot_tune.py --effort quick   # smaller/faster search
+    python scripts/aot_tune.py --effort quick   # much faster, slightly lower quality
+
+Effort defaults to ``full`` (the most thorough search; best for an overnight
+run). Use ``--effort quick`` for a ~5-10x faster pass. Progress is printed per
+kernel (index, done/remaining, elapsed, ETA).
 
 What it does, per kernel:
   1. runs Helion's AOT collect -> measure -> build workflow across 7 input
@@ -294,9 +298,28 @@ def _orchestrate(names: list[str], effort: str) -> None:
     env.pop("HELION_LLM_PROVIDER", None)
     env.pop("HELION_LLM_MODEL", None)
 
+    import time
+
+    def _hms(secs: float) -> str:
+        secs = int(secs)
+        h, rem = divmod(secs, 3600)
+        mnt, sec = divmod(rem, 60)
+        return f"{h:d}h{mnt:02d}m{sec:02d}s" if h else f"{mnt:d}m{sec:02d}s"
+
+    total = len(names)
     ok, failed = [], []
-    for name in names:
-        print(f"\n########## {name} ##########", flush=True)
+    t_start = time.monotonic()
+    for i, name in enumerate(names, 1):
+        done = i - 1
+        remaining = total - done
+        elapsed = time.monotonic() - t_start
+        eta = (elapsed / done * remaining) if done else 0.0
+        print(f"\n########## [{i}/{total}] {name}  "
+              f"(done={done}, remaining={remaining}, "
+              f"elapsed={_hms(elapsed)}"
+              + (f", eta~{_hms(eta)}" if done else "") + ") ##########",
+              flush=True)
+        t_k = time.monotonic()
         # One aot_runner invocation per kernel; the runner spawns THIS file in
         # driver mode for each phase. A crash in one kernel can't kill the sweep.
         cmd = [sys.executable, "-m", "helion.autotuner.aot_runner",
@@ -306,9 +329,15 @@ def _orchestrate(names: list[str], effort: str) -> None:
         rc = subprocess.run(cmd, env=env).returncode
         _sync_heuristics()
         (ok if rc == 0 else failed).append(name)
-        print(f"---- {name} {'OK' if rc == 0 else f'FAILED (rc={rc})'} ----", flush=True)
+        status = "OK" if rc == 0 else f"FAILED (rc={rc})"
+        print(f"---- [{i}/{total}] {name} {status} in {_hms(time.monotonic() - t_k)} "
+              f"| ok={len(ok)} failed={len(failed)} remaining={total - i} ----",
+              flush=True)
 
-    print(f"\n=== DONE for {tag}: {len(ok)} ok, {len(failed)} failed ===", flush=True)
+    print(f"\n=== DONE for {tag} in {_hms(time.monotonic() - t_start)}: "
+          f"{len(ok)}/{total} ok, {len(failed)} failed ===", flush=True)
+    if ok:
+        print(f"  ok: {', '.join(ok)}", flush=True)
     if failed:
         print(f"  failed: {', '.join(failed)}", flush=True)
         print("  (re-run those names, or try --effort quick — some configs can "
