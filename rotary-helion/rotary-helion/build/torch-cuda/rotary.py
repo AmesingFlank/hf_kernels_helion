@@ -6,11 +6,10 @@ x1,x2: [B,S,H,R]; cos,sin: [S,1,R]. Written into out1/out2 in place.
 from __future__ import annotations
 import torch
 import helion
-import helion.experimental
 import helion.language as hl
 
 
-@helion.experimental.aot_kernel(static_shapes=False)
+@helion.aot_kernel(static_shapes=False)
 def _apply_rotary(out1, out2, x1, x2, cos, sin, conj: hl.constexpr):
     B, S, H, R = x1.shape
     for tb, ts, th in hl.tile([B, S, H]):

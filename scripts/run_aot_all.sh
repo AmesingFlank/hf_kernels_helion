@@ -17,7 +17,7 @@ exec > >(tee -a "$LOG") 2>&1
 for k in "${KERNELS[@]}"; do
   echo "############## AOT workflow: $k ##############"
   # per-kernel timeout guard: megablocks/mamba can be slow; cap generously
-  timeout 1800 ~/.venv/bin/python -m helion.experimental.aot_runner \
+  timeout 1800 ~/.venv/bin/python -m helion.autotuner.aot_runner \
     --phase all --goal max_slowdown --threshold 1.15 --max-configs 8 \
     -k "$k" -- ~/.venv/bin/python scripts/aot_tune.py "$k" \
     2>&1 | grep -E "PHASE|Collected|Recorded|Saved combined|Selected|max_slowdown|PASS|FAIL|Traceback|Error|\[aot_tune\]" | tail -20

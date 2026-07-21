@@ -7,11 +7,10 @@ grouped/dropless-MoE expert matmul megablocks accelerates.
 from __future__ import annotations
 import torch
 import helion
-import helion.experimental
 import helion.language as hl
 
 
-@helion.experimental.aot_kernel(static_shapes=False)
+@helion.aot_kernel(static_shapes=False)
 def _grouped_gemm(A_packed: torch.Tensor, W: torch.Tensor, group_offsets: torch.Tensor) -> torch.Tensor:
     total_M, K = A_packed.shape
     G, _, N = W.shape

@@ -34,7 +34,6 @@ import math
 import torch
 
 import helion
-import helion.experimental
 import helion.language as hl
 
 
@@ -45,7 +44,7 @@ def _sdpa_baseline(q, k, v, *, causal):
     return torch.nn.functional.scaled_dot_product_attention(q, k, v, is_causal=causal)
 
 
-@helion.experimental.aot_kernel(
+@helion.aot_kernel(
     static_shapes=True,
     autotune_baseline_fn=lambda q, k, v, km, s: _sdpa_baseline(
         q.reshape(-1, q.size(-2), q.size(-1)),
@@ -104,7 +103,7 @@ def sage_attn_fwd(
     return out
 
 
-@helion.experimental.aot_kernel(
+@helion.aot_kernel(
     static_shapes=True,
     autotune_baseline_fn=lambda q, k, v, km, s: _sdpa_baseline(
         q.reshape(-1, q.size(-2), q.size(-1)),

@@ -40,7 +40,7 @@ elementwise/activation, normalization, rotary embeddings, state-space models
 and INT8-quantized (SageAttention2) and full-precision flash attention.
 
 These are benchmarked on Helion's default **Triton** backend, and ship
-**pre-tuned configs** (`@helion.experimental.aot_kernel`) so downloaders skip
+**pre-tuned configs** (`@helion.aot_kernel`) so downloaders skip
 autotuning entirely — the first call is a sub-second compile of the shipped
 config instead of minutes of search. Across the 38 kernel×shape pairs, shipping
 the pre-tuned configs cuts total autotune time **4065 s → 39 s (~105× faster

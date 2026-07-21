@@ -9,7 +9,7 @@ K="$1"
 LOG="/home/dev/hf_kernels_helion/aot_${K}.log"; : > "$LOG"
 exec > >(tee -a "$LOG") 2>&1
 echo "###### AOT workflow: $K ######"
-~/.venv/bin/python -m helion.experimental.aot_runner \
+~/.venv/bin/python -m helion.autotuner.aot_runner \
   --phase all --goal max_slowdown --threshold 1.15 --max-configs 8 \
   -k "$K" -- ~/.venv/bin/python scripts/aot_tune.py "$K"
 echo "###### AOT $K exit $? ######"
