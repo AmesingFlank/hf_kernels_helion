@@ -56,7 +56,7 @@ AWSCHECK
 echo "=== launching LLM (Bedrock) pre-tuning: effort=$EFFORT, autotuner=$HELION_AUTOTUNER ==="
 LOG="$REPO_ROOT/pretune_llm.log"
 # tee everything to a durable in-repo log; aot_tune.py prints per-kernel progress.
-"$PY" scripts/aot_tune.py --effort "$EFFORT" "$@" 2>&1 | tee "$LOG"
+"$PY" hf_kernels_helion/scripts/aot_tune.py --effort "$EFFORT" "$@" 2>&1 | tee "$LOG"
 
 echo
 echo "=== done. Commit the generated heuristics: ==="
