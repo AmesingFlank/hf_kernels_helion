@@ -19,6 +19,6 @@ def key_sage_attn_fwd(*args) -> int:
 def autotune_sage_attn_fwd(*args) -> dict:
     """Select the optimal config for the given arguments."""
     _C = [
-        {'block_sizes': [256, 64], 'range_unroll_factors': [0, 0, 0], 'range_warp_specializes': [None, None, None], 'range_num_stages': [0, 0, 0], 'range_multi_buffers': [None, None, None], 'range_flattens': [None, None, None], 'load_eviction_policies': ['', '', '', ''], 'num_warps': 8, 'num_stages': 4, 'indexing': ['pointer', 'pointer', 'pointer', 'pointer', 'pointer'], 'atomic_indexing': [], 'pid_type': 'flat'},
+        {'block_sizes': [256, 128], 'range_unroll_factors': [0, 0, 0], 'range_warp_specializes': [None, None, False], 'range_num_stages': [0, 2, 0], 'range_multi_buffers': [None, None, False], 'range_flattens': [None, None, False], 'load_eviction_policies': ['', '', '', 'last'], 'num_warps': 8, 'num_stages': 1, 'indexing': ['pointer', 'pointer', 'pointer', 'tensor_descriptor', 'tensor_descriptor'], 'atomic_indexing': [], 'pid_type': 'persistent_interleaved', 'num_sm_multiplier': 1},
     ]
     return _C[key_sage_attn_fwd(*args)]
