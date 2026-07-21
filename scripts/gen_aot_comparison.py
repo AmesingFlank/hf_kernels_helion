@@ -44,23 +44,29 @@ def align(base, aot):
 HEADER = """# Helion kernels — AOT pre-tuned vs from-scratch autotuned (Triton backend)
 
 Both columns are the **same Helion kernels on the same B200**, benchmarked
-against the same `kernels-community` references. The difference is *how the
-config was obtained*:
+against the same `kernels-community` references. Two things differ between them —
+both *how* the config was searched for and *when* the cost is paid:
 
-- **autotuned** (`results/triton/`): from-scratch LLM-guided autotuning on this
-  machine — the `autotune` column is the wall-clock search time paid on first
-  use if the kernel had no pre-tuned config.
-- **pre-tuned** (`results/triton_aot/`): the kernel ships a committed
-  `_helion_aot_*_cuda_sm100.py` heuristic (`@aot_kernel`, `HELION_AOT_MODE=
-  evaluate`). No search happens; the `autotune` column is just the one-config
-  compile a downloader pays.
+- **autotuned** (`results/triton/`): from-scratch, per-shape search with the
+  **LLM-guided** autotuner. The `autotune` column is the wall-clock search time
+  (80-150 s/shape) a user would pay on first use with no shipped config.
+- **pre-tuned** (`results/triton_aot/`): the committed
+  `_helion_aot_*_cuda_sm100.py` heuristics, produced ahead-of-time by the
+  **default LFBO** autotuner at full effort and loaded via `@helion.aot_kernel`
+  (`HELION_AOT_MODE=evaluate`). No search at run time; the `autotune` column is
+  just the one-config compile a downloader pays.
 
-`Δ speed` = pre-tuned speedup / autotuned speedup (≈1.00 means the pre-tuned
-config matches the individually-tuned one; <1 means slightly slower). `autotune`
-columns show the headline win: seconds of search collapse to a sub-second
-compile. All rows are numerically verified in both modes (✓).
+So `Δ speed` (= pre-tuned speedup / autotuned speedup) blends two effects: the
+generalization loss of using one shipped config per shape *and* the LFBO-vs-LLM
+autotuner difference. It is **not** uniformly ≤1: LFBO found notably better
+configs for some kernels (e.g. causal-conv1d up to 3.2x) and worse for others
+(e.g. finegrained-fp8), so treat it as "how the shipped config compares to the
+earlier per-shape LLM search", not a pure pre-tuning penalty. All rows are
+numerically verified in both modes (✓).
 
-Autotuning-time totals below exclude shapes that only exist in one mode.
+The headline win is unchanged regardless: run-time search (thousands of seconds
+total) collapses to a sub-second per-shape compile. Autotuning-time totals below
+exclude shapes present in only one mode.
 """
 
 

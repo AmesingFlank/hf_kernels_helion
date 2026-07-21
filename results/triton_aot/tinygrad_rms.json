@@ -2,28 +2,28 @@
   {
     "kernel": "tinygrad_rms_norm",
     "size": "small 4096x1024",
-    "helion_ms": 0.035,
+    "helion_ms": 0.0342,
     "ref_ms": 0.0177,
-    "speedup": 0.506,
-    "autotune_s": 0.5,
+    "speedup": 0.518,
+    "autotune_s": 0.7,
     "ok": true
   },
   {
     "kernel": "tinygrad_rms_norm",
     "size": "medium 16384x1024",
-    "helion_ms": 0.0337,
-    "ref_ms": 0.0554,
-    "speedup": 1.641,
-    "autotune_s": 0.5,
+    "helion_ms": 0.0336,
+    "ref_ms": 0.0555,
+    "speedup": 1.65,
+    "autotune_s": 0.6,
     "ok": true
   },
   {
     "kernel": "tinygrad_rms_norm",
     "size": "large 65536x1024",
-    "helion_ms": 0.0805,
-    "ref_ms": 0.1984,
-    "speedup": 2.465,
-    "autotune_s": 0.5,
+    "helion_ms": 0.0907,
+    "ref_ms": 0.1988,
+    "speedup": 2.192,
+    "autotune_s": 0.6,
     "ok": true
   }
 ]

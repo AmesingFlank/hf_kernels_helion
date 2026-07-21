@@ -12,7 +12,7 @@ for k in "${KERNELS[@]}"; do
     # sage benchmark needs the sageattention ref -> venv_torch_213; others use .venv
     PY=~/.venv/bin/python
     [ "$k" = "sage" ] && PY=~/venv_torch_213/bin/python
-    REBENCH_AOT=1 REBENCH_SHAPE="$s" timeout 300 "$PY" rebench_llm.py "$k" 2>&1 \
+    REBENCH_AOT=1 REBENCH_SHAPE="$s" timeout 300 "$PY" scripts/rebench_llm.py "$k" 2>&1 \
       | grep -E "helion=|WROTE|Error|Traceback" | tail -3
   done
 done
