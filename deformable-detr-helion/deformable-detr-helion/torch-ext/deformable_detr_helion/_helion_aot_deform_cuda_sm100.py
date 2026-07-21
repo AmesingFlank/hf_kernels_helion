@@ -19,6 +19,6 @@ def key__deform_attn(*args) -> int:
 def autotune__deform_attn(*args) -> dict:
     """Select the optimal config for the given arguments."""
     _C = [
-        {'block_sizes': [128], 'range_unroll_factors': [0, 0, 0, 0], 'range_warp_specializes': [None, None, None, None], 'range_num_stages': [0, 1, 0, 0], 'range_multi_buffers': [None, None, None, None], 'range_flattens': [None, None, None, None], 'static_ranges': [False, False], 'load_eviction_policies': ['', '', '', '', '', '', ''], 'num_warps': 32, 'num_stages': 4, 'indexing': ['pointer', 'pointer', 'pointer', 'pointer', 'pointer', 'pointer', 'pointer', 'pointer'], 'atomic_indexing': [], 'pid_type': 'flat'},
+        {'block_sizes': [128], 'range_unroll_factors': [0, 4, 2, 0], 'range_warp_specializes': [None, None, False, None], 'range_num_stages': [0, 4, 2, 0], 'range_multi_buffers': [None, False, None, None], 'range_flattens': [None, True, False, None], 'static_ranges': [False, True], 'load_eviction_policies': ['', '', '', '', '', '', ''], 'num_warps': 32, 'num_stages': 2, 'indexing': ['pointer', 'tensor_descriptor', 'tensor_descriptor', 'pointer', 'tensor_descriptor', 'pointer', 'tensor_descriptor', 'tensor_descriptor'], 'atomic_indexing': [], 'pid_type': 'flat'},
     ]
     return _C[key__deform_attn(*args)]
