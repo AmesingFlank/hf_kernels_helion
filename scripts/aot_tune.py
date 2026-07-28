@@ -3,7 +3,8 @@
 
 Usage (from anywhere, after activating the venv):
 
-    python scripts/aot_tune.py            # tune ALL kernels, 7 shapes each
+    python scripts/aot_tune.py            # tune ALL kernels (7 shapes each;
+                                          #   attention uses the analysis' 19)
     python scripts/aot_tune.py rwkv fp8   # tune only the named kernels
     python scripts/aot_tune.py --effort quick   # override effort for this run
 
@@ -19,8 +20,10 @@ else the ambient ``HELION_AUTOTUNE_EFFORT``, else Helion's default. Progress is
 printed per kernel (index, done/remaining, elapsed, ETA).
 
 What it does, per kernel:
-  1. runs Helion's AOT collect -> measure -> build workflow across 7 input
-     shapes (small..large) using the DEFAULT autotuner (LFBOTreeSearch),
+  1. runs Helion's AOT collect -> measure -> build workflow across that
+     kernel's input shapes (7 small..large for most; attention uses the 19
+     distinct shapes from the external analysis) using the DEFAULT autotuner
+     (LFBOTreeSearch),
   2. writes the per-shape heuristic next to the kernel's runtime source as
      ``_helion_aot_<file>_<device>_<compute>.py`` (e.g. ``..._cuda_sm100.py``),
   3. copies that heuristic back into ``torch-ext/`` (the committed source of
@@ -51,6 +54,11 @@ if str(HH) not in sys.path:
 import torch  # noqa: E402
 import kernels  # noqa: E402
 
+# Accept a heuristic only if its worst-case shape is within this factor of that
+# shape's individually-tuned optimum (--goal max_slowdown). 1.01 = essentially
+# per-shape optimal (was 1.15); stricter => the build phase keeps more configs.
+THRESHOLD = "1.01"
+
 
 def local(repo: str):
     """Load a built noarch kernel by its <repo>/<repo>/result path."""
@@ -60,7 +68,8 @@ def local(repo: str):
 # ---------------------------------------------------------------- kernels ----
 # Each kernel provides:
 #   repo:     "<name>-helion" directory
-#   shapes(): list of 7 shape tuples, small -> large
+#   shapes(): list of shape tuples, small -> large (7 for most kernels;
+#             attention uses the external analysis' 19 distinct shapes)
 #   run(m, shape): invoke the kernel once for a shape (on CUDA)
 # Shapes are chosen to span the regimes a user is likely to hit; the heuristic
 # generalizes across them (and emits a decision tree when they diverge).
@@ -224,12 +233,32 @@ def run_deformable(m, s):
 
 
 def sh_attention():
-    # (B, H, S, D) bhsd — the layout attention() takes. Span the regimes the
-    # external analysis exercised: head_dim in {64,128} across a batch sweep and
-    # a sequence sweep, so the heuristic doesn't collapse to a batch-only rule.
-    return [(2, 16, 1024, 64), (4, 16, 1024, 64), (8, 16, 1024, 64),
-            (8, 16, 1024, 128), (16, 16, 1024, 128),
-            (8, 16, 2048, 128), (8, 16, 4096, 128)]
+    # (B, H, S, D) bhsd — the layout attention() takes. This is the FULL shape
+    # set the external analysis benchmarks
+    # (https://gist.github.com/sayakpaul/a1f858c354f010bbf5aeabd94602b557), so
+    # the heuristic is trained on exactly what that analysis measures. It spans
+    # head_dim in {32,64,128,256}, a batch sweep, a sequence sweep, cross
+    # combinations, and long single-sample (DiT-ish) sequences.
+    #
+    # De-duplicated: the gist lists 20 entries but two (upstream_medium and
+    # b4_d64_s512) are the identical (4,16,512,64) shape; static_shapes=True
+    # keys on shape, so a duplicate would collapse to one specialization anyway.
+    # These 19 are the distinct shapes.
+    return [
+        # upstream small / medium / large (kernels' FlashAttentionBenchmark)
+        (2, 8, 128, 64), (4, 16, 512, 64), (8, 32, 1024, 128),
+        # batch sweep at each tuned head_dim
+        (1, 16, 1024, 64), (2, 16, 1024, 64), (4, 16, 1024, 64),
+        (8, 16, 1024, 128), (16, 16, 1024, 128), (32, 16, 1024, 128),
+        # sequence-length sweep (b4_d64_s512 == upstream_medium, omitted)
+        (4, 16, 2048, 64), (4, 16, 4096, 64),
+        (8, 16, 2048, 128), (8, 16, 4096, 128),
+        # cross combinations (untuned head_dims 32/256 included on purpose)
+        (2, 16, 1024, 128), (8, 16, 1024, 64),
+        (4, 16, 1024, 32), (8, 16, 1024, 256),
+        # diffusion-transformer-ish long single-sample sequences
+        (1, 24, 4608, 128), (2, 24, 4608, 64),
+    ]
 
 
 def run_attention(m, s):
@@ -312,9 +341,17 @@ def _orchestrate(names: list[str], effort: str | None) -> None:
     # Operational defaults required for AOT-tuning get_local_kernel modules
     # (harmless to the autotuner choice); keep any value the user already set.
     env.setdefault("HELION_AUTOTUNE_BENCHMARK_SUBPROCESS", "0")
-    env.setdefault("HELION_AUTOTUNE_IGNORE_ERRORS", "1")
+    # Force autotune_ignore_errors ON (not setdefault): with the strict
+    # threshold and the wide attention shape set (head_dim 32/256 etc.), some
+    # individual configs hit Triton compile/runtime errors on some shapes.
+    # ignore_errors makes the autotuner SKIP a failing config rather than abort
+    # the kernel's whole sweep -- so a bad config on one shape can't sink tuning.
+    # (Same knob as helion's autotune_ignore_errors setting; the env var is its
+    # global default.)
+    env["HELION_AUTOTUNE_IGNORE_ERRORS"] = "1"
     print(f"=== AOT pre-tuning {len(names)} kernel(s) for {tag} "
-          f"(autotuner={autotuner}, effort={eff}, 7 shapes each) ===", flush=True)
+          f"(autotuner={autotuner}, effort={eff}, "
+          f"threshold={THRESHOLD}, ignore_errors=1) ===", flush=True)
 
     import time
 
@@ -341,7 +378,7 @@ def _orchestrate(names: list[str], effort: str | None) -> None:
         # One aot_runner invocation per kernel; the runner spawns THIS file in
         # driver mode for each phase. A crash in one kernel can't kill the sweep.
         cmd = [sys.executable, "-m", "helion.autotuner.aot_runner",
-               "--phase", "all", "--goal", "max_slowdown", "--threshold", "1.15",
+               "--phase", "all", "--goal", "max_slowdown", "--threshold", THRESHOLD,
                "--max-configs", "8", "-k", name,
                "--", sys.executable, str(Path(__file__).resolve()), "--_drive", name]
         rc = subprocess.run(cmd, env=env).returncode

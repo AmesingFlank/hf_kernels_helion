@@ -112,7 +112,7 @@ All tooling lives under `scripts/`; run the commands below from the repo root.
    # or one kernel via the runner directly:
    source scripts/aot_env.sh
    python -m helion.experimental.aot_runner \
-       --phase all --goal max_slowdown --threshold 1.15 --max-configs 8 \
+       --phase all --goal max_slowdown --threshold 1.01 --max-configs 8 \
        -k activation -- python scripts/aot_tune.py activation
    ```
 
@@ -145,8 +145,9 @@ actually uses.
   (more configs = better per-shape fit, larger table). We use 8.
 - `--single-config` — force one config for all shapes (smallest table; good when
   shapes are similar or batch-only-varying).
-- `--goal max_slowdown --threshold 1.15` — accept a heuristic whose worst-case
-  shape is within 15% of that shape's individually-tuned optimum.
+- `--goal max_slowdown --threshold 1.01` — accept a heuristic whose worst-case
+  shape is within 1% of that shape's individually-tuned optimum. (Stricter
+  thresholds keep more configs, since one config must fit every shape tightly.)
 - `--backend decision_tree|nearest_neighbor` — decision tree (default) is
   compact; nearest-neighbor stores training shapes and matches at runtime.
 - `batched=[[...]|None,...]` on the decorator — mark batch dims so different
