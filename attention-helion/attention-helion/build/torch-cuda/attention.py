@@ -44,7 +44,7 @@ def _sdpa_baseline(q, k, v, *, causal):
 
 @helion.aot_kernel(
     static_shapes=True,
-    autotune_baseline_fn=lambda q, k, v: _sdpa_baseline(q, k, v, causal=False),
+    autotune_baseline_fn=lambda q, k, v, out: _sdpa_baseline(q, k, v, causal=False),
     autotune_baseline_atol=5e-2,
     autotune_baseline_rtol=2e-2,
 )
@@ -52,8 +52,14 @@ def attention_output(
     q_in: torch.Tensor,
     k_in: torch.Tensor,
     v_in: torch.Tensor,
+    out_in: torch.Tensor,
 ) -> torch.Tensor:
-    """Computes scaled dot-product attention, returning only the output."""
+    """Computes scaled dot-product attention, writing into ``out_in`` in place.
+
+    ``out_in`` is the caller's output tensor (same shape as ``q_in``). Writing
+    into it directly avoids the extra full-tensor ``out.copy_(result)`` the
+    custom-op wrapper used to pay.
+    """
     m_dim = q_in.size(-2)
     n_dim = k_in.size(-2)
     assert n_dim == v_in.size(-2)
@@ -62,7 +68,7 @@ def attention_output(
     q_view = q_in.reshape([-1, m_dim, head_dim])
     v_view = v_in.reshape([-1, n_dim, head_dim])
     k_view = k_in.reshape([-1, n_dim, head_dim])
-    out = torch.empty_like(q_view)
+    out = out_in.reshape([-1, m_dim, head_dim])
     sm_scale = 1.0 / math.sqrt(head_dim)
     qk_scale = sm_scale * 1.44269504  # 1/log(2)
     for tile_b, tile_m in hl.tile([q_view.size(0), m_dim]):
@@ -87,12 +93,12 @@ def attention_output(
             m_i = m_ij
         acc = acc / l_i[:, :, None]
         out[tile_b, tile_m, :] = acc.to(out.dtype)
-    return out.view(q_in.size())
+    return out_in
 
 
 @helion.aot_kernel(
     static_shapes=True,
-    autotune_baseline_fn=lambda q, k, v: _sdpa_baseline(q, k, v, causal=True),
+    autotune_baseline_fn=lambda q, k, v, out: _sdpa_baseline(q, k, v, causal=True),
     autotune_baseline_atol=5e-2,
     autotune_baseline_rtol=2e-2,
 )
@@ -100,8 +106,9 @@ def causal_attention_output(
     q_in: torch.Tensor,
     k_in: torch.Tensor,
     v_in: torch.Tensor,
+    out_in: torch.Tensor,
 ) -> torch.Tensor:
-    """Computes causal scaled dot-product attention, returning only the output."""
+    """Computes causal scaled dot-product attention, writing into ``out_in``."""
     m_dim = q_in.size(-2)
     n_dim = k_in.size(-2)
     assert n_dim == v_in.size(-2)
@@ -110,7 +117,7 @@ def causal_attention_output(
     q_view = q_in.reshape([-1, m_dim, head_dim])
     v_view = v_in.reshape([-1, n_dim, head_dim])
     k_view = k_in.reshape([-1, n_dim, head_dim])
-    out = torch.empty_like(q_view)
+    out = out_in.reshape([-1, m_dim, head_dim])
     sm_scale = 1.0 / math.sqrt(head_dim)
     qk_scale = sm_scale * 1.44269504  # 1/log(2)
     for tile_b, tile_m in hl.tile([q_view.size(0), m_dim]):
@@ -143,4 +150,4 @@ def causal_attention_output(
             m_i = m_ij
         acc = acc / l_i[:, :, None]
         out[tile_b, tile_m, :] = acc.to(out.dtype)
-    return out.view(q_in.size())
+    return out_in

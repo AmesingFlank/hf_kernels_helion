@@ -224,13 +224,17 @@ def run_deformable(m, s):
 
 
 def sh_attention():
-    return [(2, 512, 8, 64), (4, 512, 16, 64), (4, 1024, 16, 64), (8, 1024, 16, 128),
-            (8, 2048, 16, 128), (16, 2048, 16, 128), (16, 4096, 16, 128)]
+    # (B, H, S, D) bhsd — the layout attention() takes. Span the regimes the
+    # external analysis exercised: head_dim in {64,128} across a batch sweep and
+    # a sequence sweep, so the heuristic doesn't collapse to a batch-only rule.
+    return [(2, 16, 1024, 64), (4, 16, 1024, 64), (8, 16, 1024, 64),
+            (8, 16, 1024, 128), (16, 16, 1024, 128),
+            (8, 16, 2048, 128), (8, 16, 4096, 128)]
 
 
 def run_attention(m, s):
-    B, S, H, D = s
-    m.flash_attn_func(_bf16(B, S, H, D), _bf16(B, S, H, D), _bf16(B, S, H, D), causal=False)
+    B, H, S, D = s  # bhsd: tune the attention() path directly (no transpose overhead)
+    m.attention(_bf16(B, H, S, D), _bf16(B, H, S, D), _bf16(B, H, S, D), causal=False)
 
 
 def sh_sage():

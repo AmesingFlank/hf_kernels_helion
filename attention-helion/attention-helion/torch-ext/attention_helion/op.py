@@ -18,14 +18,13 @@ def _attention(
 ) -> None:
     """Scaled dot-product attention on ``(B, H, S, D)`` tensors, in place.
 
-    Dispatches to the causal or non-causal Helion kernel and copies the
-    result into ``out`` (Helion allocates its own output buffer).
+    Dispatches to the causal or non-causal Helion kernel, which writes directly
+    into ``out`` (no extra ``out.copy_(result)`` — the kernel fills ``out``).
     """
     if causal:
-        result = causal_attention_output(q, k, v)
+        causal_attention_output(q, k, v, out)
     else:
-        result = attention_output(q, k, v)
-    out.copy_(result)
+        attention_output(q, k, v, out)
 
 
 @_attention.register_fake
