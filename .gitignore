@@ -1,6 +1,16 @@
 # Nix build symlinks into /nix/store get GC'd; we instead commit the
 # reconstructed pure-Python noarch build/ dirs and relative `result` symlinks
-# (see rebuild_noarch.py). So build/ and result are NOT ignored.
+# (see rebuild_noarch.py). So build/ and result are NOT ignored -- and this is
+# the single source of ignore policy: per-kernel .gitignore files used to
+# re-ignore build/ (contradicting this) and hid the AOT heuristics written
+# there, so they were removed. All committed build/ artifacts (incl. the
+# _helion_aot_*.py heuristics) now show up in `git status` normally.
+
+# Dangling Nix `result` symlinks into /nix/store for kernels that have NOT been
+# reconstructed into a committed build/ (e.g. relu-helion). The 20 real noarch
+# kernels' `result` symlinks are already tracked, so this rule can't hide them
+# (tracked files ignore .gitignore); it only keeps GC-prone stubs out.
+result
 
 # Python caches
 __pycache__/
